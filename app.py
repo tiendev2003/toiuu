@@ -174,16 +174,13 @@ def process_image_task(frame_type, image_files, positions, photo_width, photo_he
             if is_print_server():
                 # Nếu là máy chủ in, in trực tiếp từ file local
                 logger.info(f"Auto printing locally: {os.path.basename(image_output_file)} to {printer_name}")
-                print_result = send_print_job(image_output_file, printer_name, copies=1, paper_size="4x6")
+                send_print_job(image_output_file, printer_name, copies=1, paper_size="4x6")
             else:
                 # Nếu không phải máy chủ in, gửi file đến máy chủ in qua API
                 logger.info(f"Auto sending print job to server: {os.path.basename(image_output_file)} to {printer_name}")
-                print_result = send_print_job_to_server(image_output_file, printer_name, copies=1, paper_size="4x6")
+                send_print_job_to_server(image_output_file, printer_name, copies=1, paper_size="4x6")
             
-            if print_result["success"]:
-                logger.info(f"Auto print job successful: {print_result.get('job_id', 'unknown')} - {printer_name}")
-            else:
-                logger.warning(f"Auto print job failed: {print_result.get('message', 'unknown error')}")
+            logger.info(f"Print job sent to {printer_name} (fire and forget)")
                 
         except Exception as e:
             logger.warning(f"Failed to auto print: {e}")
