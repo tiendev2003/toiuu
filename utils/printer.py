@@ -206,38 +206,27 @@ def send_print_job_system(image_path: str, printer_name: str, copies: int = 1, p
     
     try:
         if system == "windows":
-            # Sử dụng PowerShell để in trên Windows
-            # Start-Process -FilePath "C:\path\to\image.jpg" -Verb Print -ArgumentList "/p"
-            powershell_cmd = f'''
-            $printer = Get-Printer -Name "{printer_name}" -ErrorAction SilentlyContinue
-            if ($printer) {{
-                $printJob = Start-Process -FilePath "{image_path}" -Verb Print -PassThru
-                Write-Output "Print job started with ID: $($printJob.Id)"
-            }} else {{
-                Write-Error "Printer '{printer_name}' not found"
-            }}
-            '''
-            
-            cmd = ["powershell", "-Command", powershell_cmd]
+            # Sử dụng rundll32 để in trên Windows
+            cmd = ["rundll32", "shimgvw.dll,ImageView_PrintTo", f"/pt", image_path, printer_name]
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
             
             if result.returncode == 0:
                 job_id = f"win_print_{int(time.time())}"
-                logger.info(f"Windows print job sent successfully: {result.stdout}")
+                logger.info(f"Windows rundll32 print job sent successfully")
                 return {
                     "success": True,
                     "job_id": job_id,
-                    "message": "Print job sent via Windows Print Spooler",
+                    "message": "Print job sent via rundll32",
                     "printer": printer_name,
                     "copies": copies,
-                    "system_output": result.stdout.strip()
+                    "system_output": "Print command executed"
                 }
             else:
-                error_msg = result.stderr.strip() or "Unknown Windows print error"
-                logger.error(f"Windows print failed: {error_msg}")
+                error_msg = result.stderr.strip() or "Unknown rundll32 print error"
+                logger.error(f"Windows rundll32 print failed: {error_msg}")
                 return {
                     "success": False,
-                    "error": "windows_print_failed",
+                    "error": "windows_rundll32_failed",
                     "message": error_msg
                 }
                 

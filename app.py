@@ -168,7 +168,7 @@ def process_image_task(frame_type, image_files, positions, photo_width, photo_he
         # Tự động gọi hàm in ngay sau khi tạo ảnh
         try:
             # Xác định máy in dựa vào frame type
-            printer_name = "DS-RX1_Cut" if frame_type.get("isCustom", False) else "DS-RX1"
+            printer_name = "DS-RX1-sCut" if frame_type.get("isCustom", False) else "DS-RX1"
             
             # Kiểm tra xem máy hiện tại có phải máy chủ in không
             if is_print_server():
