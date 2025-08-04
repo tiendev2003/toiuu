@@ -293,11 +293,11 @@ def send_print_job_system(image_path: str, printer_name: str, copies: int = 1, p
             "message": f"Unexpected error: {e}"
         }
 
-def send_print_job_to_server(image_url: str, printer_name: str, copies: int = 1, paper_size: str = "4x6") -> Dict[str, Any]:
+def send_print_job_to_server(image_path: str, printer_name: str, copies: int = 1, paper_size: str = "4x6") -> Dict[str, Any]:
     """
-    Gửi lệnh in đến máy chủ in qua API
+    Gửi lệnh in đến máy chủ in qua API (gửi file thay vì URL)
     Args:
-        image_url: URL của ảnh cần in (đã upload lên server)
+        image_path: Đường dẫn đến file ảnh cần in
         printer_name: Tên máy in
         copies: Số bản in
         paper_size: Kích thước giấy
@@ -305,10 +305,14 @@ def send_print_job_to_server(image_url: str, printer_name: str, copies: int = 1,
         Dict chứa kết quả in
     """
     try:
+        # Đọc file ảnh và encode base64
+        with open(image_path, 'rb') as image_file:
+            image_data = base64.b64encode(image_file.read()).decode('utf-8')
+        
         # Chuẩn bị payload
         print_payload = {
-            "image_url": image_url,
             "printer_name": printer_name,
+            "image_data": image_data,
             "copies": copies,
             "paper_size": paper_size,
             "color_mode": "color",
@@ -341,6 +345,15 @@ def send_print_job_to_server(image_url: str, printer_name: str, copies: int = 1,
                 "error": "print_server_api_failed",
                 "message": error_msg
             }
+    
+    except FileNotFoundError:
+        error_msg = f"Image file not found: {image_path}"
+        logger.error(error_msg)
+        return {
+            "success": False,
+            "error": "file_not_found",
+            "message": error_msg
+        }
     
     except requests.exceptions.RequestException as e:
         error_msg = f"Network error sending print job to server: {str(e)}"

@@ -153,6 +153,18 @@ def process_image_task(frame_type, image_files, positions, photo_width, photo_he
         else:
             # Frame thường, lưu trực tiếp
             frame.convert("RGB").save(image_output_file, "JPEG", quality=92, optimize=True, subsampling=0, progressive=False)
+        
+        # Upload ảnh lên host để lưu trữ
+        if os.path.exists(image_output_file):
+            try:
+                uploaded_url = upload_image_to_host(image_output_file)
+                if uploaded_url and media_session_code:
+                    # Cập nhật media session với URL đã upload
+                    update_media_session(media_session_code, image_url=uploaded_url)
+                    logger.info(f"Image uploaded and media session updated: {uploaded_url}")
+            except Exception as e:
+                logger.warning(f"Failed to upload image to host: {e}")
+        
         return image_output_file
     except Exception as e:
         logger.error(f"Error in image processing: {str(e)}")
@@ -223,9 +235,6 @@ def process_image():
                 print_path = os.path.join(daily_output_folder, f"print_{unique_id}.jpg")
                 print_img.save(print_path, "JPEG", quality=95)
                 response_data['print_image'] = f"/outputs/print_{unique_id}.jpg"
-        
-        if media_session_code and 'image' in response_data:
-            update_media_session(media_session_code, image_url=f"{URL_MAIN}{response_data['image']}")
         
         cleanup_files(saved_files)
         return jsonify(response_data), 200
@@ -579,33 +588,18 @@ def print_image():
                     "message": f"Image file '{image_filename}' not found"
                 }), 404
         
-        # Upload ảnh lên server trước
-        logger.info(f"Uploading image to server: {image_filename}")
-        image_url = upload_image_to_host(image_path)
-        
-        if not image_url:
-            return jsonify({
-                "success": False,
-                "error": "upload_failed",
-                "message": "Failed to upload image to server"
-            }), 500
-        
-        logger.info(f"Image uploaded successfully: {image_url}")
-        
         # Kiểm tra xem máy hiện tại có phải máy chủ in không
         if is_print_server():
-            # Nếu là máy chủ in, in trực tiếp
+            # Nếu là máy chủ in, in trực tiếp từ file local
             logger.info(f"Printing locally on print server: {image_filename}")
             result = send_print_job(image_path, printer_name, copies, paper_size)
         else:
-            # Nếu không phải máy chủ in, gửi lệnh in qua API
+            # Nếu không phải máy chủ in, gửi file đến máy chủ in qua API
             logger.info(f"Sending print job to print server: {image_filename}")
-            result = send_print_job_to_server(image_url, printer_name, copies, paper_size)
+            result = send_print_job_to_server(image_path, printer_name, copies, paper_size)
         
         if result["success"]:
             logger.info(f"Print job processed: {image_filename} to {printer_name} ({copies} copies)")
-            # Thêm thông tin về image URL vào response
-            result["image_url"] = image_url
             return jsonify(result), 200
         else:
             return jsonify(result), 500
