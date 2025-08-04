@@ -1,0 +1,18 @@
+# Requirements for VPS Deployment - Optimized
+# Core dependencies
+opencv-python-headless==4.8.1.78
+Pillow==10.0.1
+Flask==2.3.3
+Flask-CORS==4.0.0
+requests==2.31.0
+qrcode==7.4.2
+
+# Performance monitoring
+psutil==5.9.6
+
+# Production server
+gunicorn==21.2.0
+gevent==23.7.0
+
+# Optional optimizations
+numpy==1.24.4

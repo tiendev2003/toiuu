@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Photo Filter App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        .upload-container {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+        
+        .upload-container:hover {
+            border-color: #888;
+        }
+        
+        .upload-label {
+            display: block;
+            font-size: 18px;
+            margin-bottom: 15px;
+            cursor: pointer;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .upload-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .upload-btn:hover {
+            background-color: #45a049;
+        }
+        
+        .preview-container {
+            display: none;
+            margin-top: 30px;
+        }
+        
+        .preview-image {
+            max-width: 100%;
+            max-height: 500px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+        }
+        
+        .filters-title {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 20px;
+            color: #333;
+        }
+        
+        .filters-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .filter-item {
+            width: 120px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            background-color: white;
+        }
+        
+        .filter-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .filter-item.active {
+            border: 3px solid #4CAF50;
+        }
+        
+        .filter-preview {
+            width: 100px;
+            height: 100px;
+            border-radius: 5px;
+            object-fit: cover;
+            margin-bottom: 8px;
+        }
+        
+        .filter-name {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .filter-icon {
+            font-size: 20px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .print-btn, .download-btn {
+            padding: 12px 25px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .print-btn {
+            background-color: #2196F3;
+            color: white;
+        }
+        
+        .print-btn:hover {
+            background-color: #0b7dda;
+        }
+        
+        .download-btn {
+            background-color: #ff9800;
+            color: white;
+        }
+        
+        .download-btn:hover {
+            background-color: #e68a00;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            font-size: 18px;
+            color: #666;
+        }
+        
+        /* Filter Classes */
+        .filter-none {
+            filter: none;
+        }
+        
+        .filter-soft {
+            filter: brightness(1.05) contrast(0.95) saturate(0.95);
+        }
+        
+        .filter-bright {
+            filter: brightness(1.10) contrast(0.90) saturate(1.05);
+        }
+        
+        .filter-glow {
+            filter: brightness(1.10) contrast(1.10) saturate(1.10);
+        }
+        
+        .filter-smooth {
+            filter: brightness(1.05) contrast(0.90) saturate(0.95) blur(0.2px);
+        }
+        
+        .filter-vintage {
+            filter: sepia(0.8) brightness(0.75) contrast(1.25) saturate(0.7);
+        }
+        
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Bộ lọc làm đẹp ảnh</h1>
+        
+        <div class="upload-container" id="uploadContainer">
+            <label for="imageInput" class="upload-label">
+                <span>Chọn hoặc kéo thả ảnh vào đây</span>
+                <input type="file" id="imageInput" class="file-input" accept="image/*">
+            </label>
+            <button class="upload-btn" id="uploadBtn">Tải ảnh lên</button>
+        </div>
+        
+        <div class="preview-container" id="previewContainer">
+            <img id="previewImage" class="preview-image">
+            
+            <h3 class="filters-title">Chọn bộ lọc làm đẹp</h3>
+            
+            <div class="filters-container" id="filtersContainer">
+                <!-- Filter items will be added dynamically -->
+            </div>
+            
+            <div class="action-buttons">
+                <button class="print-btn" id="printBtn">In ảnh</button>
+                <button class="download-btn" id="downloadBtn">Tải ảnh về</button>
+            </div>
+        </div>
+        
+        <div id="loadingIndicator" class="loading" style="display: none;">
+            Đang xử lý ảnh...
+        </div>
+    </div>
+    
+    <script>
+        // Skin filters data
+        const skinFilters = [
+            {
+                id: "none",
+                name: "Bình thường",
+                className: "",
+                preview: "/static/anh/1.png",
+                icon: "🌟",
+            },
+            {
+                id: "soft",
+                name: "Da mềm mịn",
+                className: "brightness-105 contrast-95 saturate-95",
+                preview: "/static/anh/2.png",
+                icon: "✨",
+            },
+            {
+                id: "bright",
+                name: "Da sáng",
+                className: "brightness-110 contrast-90 saturate-105",
+                preview: "/static/anh/3.png",
+                icon: "💫",
+            },
+            {
+                id: "glow",
+                name: "Da rạng rỡ",
+                className: "brightness-110 contrast-110 saturate-110",
+                preview: "/static/anh/4.png",
+                icon: "🌈",
+            },
+            {
+                id: "smooth",
+                name: "Da mượt",
+                className: "brightness-105 contrast-90 saturate-95 blur-[0.2px]",
+                preview: "/static/anh/5.png",
+                icon: "🎭",
+            },
+            {
+                id: "vintage",
+                name: "Hoài cổ",
+                className: "sepia-50 brightness-90 contrast-110",
+                preview: "/static/anh/6.png",
+                icon: "📸",
+            },
+            
+        ];
+        
+        // DOM Elements
+        const imageInput = document.getElementById('imageInput');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const uploadContainer = document.getElementById('uploadContainer');
+        const previewContainer = document.getElementById('previewContainer');
+        const previewImage = document.getElementById('previewImage');
+        const filtersContainer = document.getElementById('filtersContainer');
+        const printBtn = document.getElementById('printBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        
+        // Variables
+        let uploadedImage = null;
+        let currentFilter = 'none';
+        let processedImageUrl = null;
+        
+        // Event Listeners
+        imageInput.addEventListener('change', handleImageSelect);
+        uploadBtn.addEventListener('click', () => imageInput.click());
+        printBtn.addEventListener('click', handlePrintImage);
+        downloadBtn.addEventListener('click', handleDownloadImage);
+        
+        // Drag and drop functionality
+        uploadContainer.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadContainer.style.borderColor = '#4CAF50';
+            uploadContainer.style.backgroundColor = '#f9f9f9';
+        });
+        
+        uploadContainer.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            uploadContainer.style.borderColor = '#ccc';
+            uploadContainer.style.backgroundColor = 'white';
+        });
+        
+        uploadContainer.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadContainer.style.borderColor = '#ccc';
+            uploadContainer.style.backgroundColor = 'white';
+            
+            if (e.dataTransfer.files.length) {
+                imageInput.files = e.dataTransfer.files;
+                handleImageSelect();
+            }
+        });
+        
+        // Initialize filters
+        initializeFilters();
+        
+        // Functions
+        function handleImageSelect() {
+            const file = imageInput.files[0];
+            if (file && file.type.match('image.*')) {
+                uploadedImage = file;
+                
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    previewImage.src = e.target.result;
+                    previewImage.onload = () => {
+                        // Show preview container and hide upload container
+                        uploadContainer.style.display = 'none';
+                        previewContainer.style.display = 'block';
+                        
+                        // Apply default filter (none)
+                        applyFilter('none');
+                        
+                        // Update filter previews with the actual image
+                        updateFilterPreviews(e.target.result);
+                    };
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        function initializeFilters() {
+            filtersContainer.innerHTML = '';
+            
+            skinFilters.forEach(filter => {
+                const filterItem = document.createElement('div');
+                filterItem.className = 'filter-item';
+                filterItem.dataset.filterId = filter.id;
+                
+                const filterPreview = document.createElement('img');
+                filterPreview.className = 'filter-preview';
+                filterPreview.src = filter.preview;
+                filterPreview.alt = filter.name;
+                
+                const filterName = document.createElement('div');
+                filterName.className = 'filter-name';
+                filterName.textContent = filter.name;
+                
+                const filterIcon = document.createElement('div');
+                filterIcon.className = 'filter-icon';
+                filterIcon.textContent = filter.icon;
+                
+                filterItem.appendChild(filterPreview);
+                filterItem.appendChild(filterName);
+                filterItem.appendChild(filterIcon);
+                
+                filterItem.addEventListener('click', () => {
+                    applyFilter(filter.id);
+                });
+                
+                filtersContainer.appendChild(filterItem);
+            });
+        }
+        
+        function updateFilterPreviews(imageUrl) {
+            // Get all filter preview images
+            const filterPreviews = document.querySelectorAll('.filter-preview');
+            
+            // Update each preview with the uploaded image
+            filterPreviews.forEach(preview => {
+                preview.src = imageUrl;
+                
+                // Get the filter ID from the parent element
+                const filterId = preview.parentElement.dataset.filterId;
+                
+                // Apply the filter class to the preview
+                preview.className = 'filter-preview';
+                if (filterId !== 'none') {
+                    preview.classList.add(`filter-${filterId}`);
+                }
+            });
+        }
+        
+        function applyFilter(filterId) {
+            // Reset processed image URL cache when changing filter
+            if (currentFilter !== filterId) {
+                processedImageUrl = null;
+            }
+            
+            currentFilter = filterId;
+            
+            // Remove all filter classes from preview image
+            previewImage.className = 'preview-image';
+            
+            // Add the selected filter class
+            if (filterId !== 'none') {
+                previewImage.classList.add(`filter-${filterId}`);
+            }
+            
+            // Mark the selected filter as active
+            document.querySelectorAll('.filter-item').forEach(item => {
+                if (item.dataset.filterId === filterId) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+        
+        async function handlePrintImage() {
+            if (!uploadedImage) return;
+            
+            try {
+                loadingIndicator.style.display = 'block';
+                
+                // First process the image with the selected filter
+                const processedUrl = await processImageWithFilter();
+                
+                if (!processedUrl) {
+                    throw new Error('Không thể xử lý ảnh');
+                }
+                
+                // Create form data for the print API
+                const formData = new FormData();
+                
+                // Get the full URL for the filtered image
+                const fullImageUrl = window.location.origin + processedUrl;
+                
+                // Call the print API
+                const response = await fetch('/api/print', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        image_url: fullImageUrl,
+                        orientation: '4x6',
+                        copies: 1
+                    }),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(result.error || 'Lỗi khi in ảnh');
+                }
+                
+                alert('Đã gửi yêu cầu in ảnh thành công!');
+                
+            } catch (error) {
+                console.error('Lỗi khi in ảnh:', error);
+                alert(`Lỗi khi in ảnh: ${error.message}`);
+            } finally {
+                loadingIndicator.style.display = 'none';
+            }
+        }
+        
+        async function handleDownloadImage() {
+            if (!uploadedImage) return;
+            
+            try {
+                loadingIndicator.style.display = 'block';
+                
+                // Process the image with the selected filter
+                const processedUrl = await processImageWithFilter();
+                
+                if (!processedUrl) {
+                    throw new Error('Không thể xử lý ảnh');
+                }
+                
+                // Get the full URL for the filtered image
+                const fullImageUrl = window.location.origin + processedUrl;
+                
+                // Fetch the filtered image as a blob
+                const response = await fetch(fullImageUrl);
+                if (!response.ok) {
+                    throw new Error('Không thể tải ảnh đã lọc');
+                }
+                
+                const imageBlob = await response.blob();
+                
+                // Create a download link for the blob
+                const blobUrl = URL.createObjectURL(imageBlob);
+                const a = document.createElement('a');
+                a.href = blobUrl;
+                a.download = `filtered_image_${currentFilter}.jpg`;
+                document.body.appendChild(a);
+                a.click();
+                
+                // Clean up
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(blobUrl);
+                }, 100);
+                
+            } catch (error) {
+                console.error('Lỗi khi tải ảnh:', error);
+                alert(`Lỗi khi tải ảnh: ${error.message}`);
+            } finally {
+                loadingIndicator.style.display = 'none';
+            }
+        }
+        
+        async function processImageWithFilter() {
+            // If we've already processed this image with this filter, return the cached URL
+            if (processedImageUrl) {
+                console.log(`Using cached filtered image for filter: ${currentFilter}`);
+                return processedImageUrl;
+            }
+            
+            console.log(`Processing image with filter: ${currentFilter}`);
+            
+            try {
+                loadingIndicator.style.display = 'block';
+                
+                // Create form data for image processing
+                const formData = new FormData();
+                formData.append('image', uploadedImage);
+                formData.append('filter_id', currentFilter);
+                
+                console.log(`Sending request to apply filter: ${currentFilter}`);
+                
+                // Send the image to the server for processing
+                const response = await fetch('/api/apply-filter', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Lỗi xử lý ảnh');
+                }
+                
+                const result = await response.json();
+                console.log('Server response:', result);
+                
+                // Cache the processed image URL
+                if (result.filtered_image_url) {
+                    processedImageUrl = result.filtered_image_url;
+                    console.log(`Cached filtered image URL: ${processedImageUrl}`);
+                    return processedImageUrl;
+                } else {
+                    throw new Error('Không nhận được URL ảnh đã xử lý');
+                }
+                
+            } catch (error) {
+                console.error('Lỗi xử lý ảnh:', error);
+                return null;
+            } finally {
+                loadingIndicator.style.display = 'none';
+            }
+        }
+        
+        // Helper function to convert CSS filter to Canvas filter
+        function cssFilterToCanvas(filterId) {
+            const filter = skinFilters.find(f => f.id === filterId);
+            
+            if (!filter || !filter.className) {
+                return null;
+            }
+            
+            // Parse the filter string to get individual filter values
+            const filterMap = {
+                brightness: 1,
+                contrast: 1,
+                saturate: 1,
+                sepia: 0,
+                blur: 0
+            };
+            
+            const filterParts = filter.className.split(' ');
+            
+            filterParts.forEach(part => {
+                if (part.startsWith('brightness-')) {
+                    const value = parseFloat(part.replace('brightness-', '')) / 100;
+                    filterMap.brightness = value;
+                } else if (part.startsWith('contrast-')) {
+                    const value = parseFloat(part.replace('contrast-', '')) / 100;
+                    filterMap.contrast = value;
+                } else if (part.startsWith('saturate-')) {
+                    const value = parseFloat(part.replace('saturate-', '')) / 100;
+                    filterMap.saturate = value;
+                } else if (part === 'sepia') {
+                    filterMap.sepia = 1;
+                } else if (part.startsWith('blur-')) {
+                    // Extract the blur value (e.g., "blur-[0.2px]" -> 0.2)
+                    const match = part.match(/blur-\[(\d+\.\d+)px\]/);
+                    if (match && match[1]) {
+                        filterMap.blur = parseFloat(match[1]);
+                    }
+                }
+            });
+            
+            return filterMap;
+        }
+    </script>
+    <script src="/static/js/preview.js"></script>
+</body>
+</html>
+    </script>
+</body>
+</html>
