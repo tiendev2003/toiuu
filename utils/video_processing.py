@@ -12,6 +12,29 @@ from pathlib import Path
 from config import VIDEO_FPS, FAST_VIDEO_DURATION, OUTPUT_FOLDER, get_frame_margin, get_frame_gap, FRAME_TYPES, get_daily_folder
 from .image_processing import fit_cover_image, calc_positions
 
+def create_video_writer(output_file, fps, width, height):
+    """
+    Tạo VideoWriter với fallback codec để tránh lỗi OpenH264
+    """
+    # Danh sách codec theo thứ tự ưu tiên
+    codecs = ['mp4v', 'MJPG', 'XVID', 'MP4V']
+    
+    for codec in codecs:
+        try:
+            fourcc = cv2.VideoWriter_fourcc(*codec)
+            out = cv2.VideoWriter(output_file, fourcc, fps, (width, height))
+            if out.isOpened():
+                print(f"[VIDEO] Successfully created VideoWriter with codec: {codec}")
+                return out, codec
+            else:
+                out.release()
+                print(f"[VIDEO] Failed to open VideoWriter with codec: {codec}")
+        except Exception as e:
+            print(f"[VIDEO] Exception with codec {codec}: {str(e)}")
+            continue
+    
+    raise ValueError(f"Cannot create video output with any available codec. Tried: {codecs}")
+
 def apply_background_and_overlay_video(frame, background_path, overlay_path, output_size, frame_type=None):
     scale_factor = min(1500 / max(output_size), 1.0) if max(output_size) > 2000 else 1.0
     working_size = (int(output_size[0] * scale_factor) & ~1, int(output_size[1] * scale_factor) & ~1)
@@ -181,16 +204,13 @@ def create_video_output(frame_type, video_files, background_path, overlay_path, 
     daily_output_folder = get_daily_folder(OUTPUT_FOLDER)
     temp_output_file = os.path.join(daily_output_folder, f"photobooth_result_{uuid.uuid4()}.mp4")
     
-    fourcc = cv2.VideoWriter_fourcc(*'avc1')
-    out = cv2.VideoWriter(temp_output_file, fourcc, fps, (output_width, output_height))
-    if not out.isOpened():
-        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        out = cv2.VideoWriter(temp_output_file, fourcc, fps, (output_width, output_height))
-        if not out.isOpened():
-            for cap in caps:
-                cap.release()
-            out.release()
-            raise ValueError("Cannot create video output!")
+    # Sử dụng helper function để tạo VideoWriter với fallback codec
+    try:
+        out, used_codec = create_video_writer(temp_output_file, fps, output_width, output_height)
+    except ValueError as e:
+        for cap in caps:
+            cap.release()
+        raise e
     
     background_frame = None
     if background_path:
@@ -288,16 +308,14 @@ def create_fast_video_output(frame_type, video_files, background_path, overlay_p
     # Tạo file trong daily folder trước khi upload
     daily_output_folder = get_daily_folder(OUTPUT_FOLDER)
     temp_output_file = os.path.join(daily_output_folder, f"photobooth_fast_{uuid.uuid4()}.mp4")
-    fourcc = cv2.VideoWriter_fourcc(*'avc1')
-    out = cv2.VideoWriter(temp_output_file, fourcc, fps, (output_width, output_height))
-    if not out.isOpened():
-        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        out = cv2.VideoWriter(temp_output_file, fourcc, fps, (output_width, output_height))
-        if not out.isOpened():
-            for cap in caps:
-                cap.release()
-            out.release()
-            raise ValueError("Cannot create fast video output!")
+    
+    # Sử dụng helper function để tạo VideoWriter với fallback codec
+    try:
+        out, used_codec = create_video_writer(temp_output_file, fps, output_width, output_height)
+    except ValueError as e:
+        for cap in caps:
+            cap.release()
+        raise e
     
     background_frame = None
     if background_path:

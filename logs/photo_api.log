@@ -2432,3 +2432,57 @@
 2025-08-04 11:01:54,882 - werkzeug - INFO -  * Debugger PIN: 110-662-228
 2025-08-04 11:01:54,882 - werkzeug - INFO -  * Debugger PIN: 110-662-228
 2025-08-04 11:01:54,882 - werkzeug - INFO -  * Debugger PIN: 110-662-228
+2025-08-04 21:31:35,252 - photo_api - INFO - Starting Flask application in debug mode
+2025-08-04 21:31:35,252 - photo_api - INFO - Starting Flask application in debug mode
+2025-08-04 21:31:35,252 - photo_api - INFO - Starting Flask application in debug mode
+2025-08-04 21:31:35,431 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:4000
+ * Running on http://192.168.1.9:4000
+2025-08-04 21:31:35,431 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:4000
+ * Running on http://192.168.1.9:4000
+2025-08-04 21:31:35,431 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:4000
+ * Running on http://192.168.1.9:4000
+2025-08-04 21:31:35,432 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-04 21:31:35,432 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-04 21:31:35,432 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-04 21:31:35,432 - werkzeug - INFO -  * Restarting with stat
+2025-08-04 21:31:35,432 - werkzeug - INFO -  * Restarting with stat
+2025-08-04 21:31:35,432 - werkzeug - INFO -  * Restarting with stat
+2025-08-04 21:31:35,736 - photo_api - INFO - Starting Flask application in debug mode
+2025-08-04 21:31:35,736 - photo_api - INFO - Starting Flask application in debug mode
+2025-08-04 21:31:35,736 - photo_api - INFO - Starting Flask application in debug mode
+2025-08-04 21:31:35,762 - werkzeug - WARNING -  * Debugger is active!
+2025-08-04 21:31:35,762 - werkzeug - WARNING -  * Debugger is active!
+2025-08-04 21:31:35,762 - werkzeug - WARNING -  * Debugger is active!
+2025-08-04 21:31:35,768 - werkzeug - INFO -  * Debugger PIN: 659-134-149
+2025-08-04 21:31:35,768 - werkzeug - INFO -  * Debugger PIN: 659-134-149
+2025-08-04 21:31:35,768 - werkzeug - INFO -  * Debugger PIN: 659-134-149
+2025-08-04 21:31:51,885 - werkzeug - INFO -  * Detected change in '/Users/trancongtien/Movies/toiuu/app.py', reloading
+2025-08-04 21:31:51,885 - werkzeug - INFO -  * Detected change in '/Users/trancongtien/Movies/toiuu/app.py', reloading
+2025-08-04 21:31:51,885 - werkzeug - INFO -  * Detected change in '/Users/trancongtien/Movies/toiuu/app.py', reloading
+2025-08-04 21:31:51,951 - werkzeug - INFO -  * Restarting with stat
+2025-08-04 21:31:51,951 - werkzeug - INFO -  * Restarting with stat
+2025-08-04 21:31:51,951 - werkzeug - INFO -  * Restarting with stat
+2025-08-04 21:31:52,294 - photo_api - INFO - Starting Flask application in debug mode
+2025-08-04 21:31:52,294 - photo_api - INFO - Starting Flask application in debug mode
+2025-08-04 21:31:52,294 - photo_api - INFO - Starting Flask application in debug mode
+2025-08-04 21:31:52,324 - werkzeug - WARNING -  * Debugger is active!
+2025-08-04 21:31:52,324 - werkzeug - WARNING -  * Debugger is active!
+2025-08-04 21:31:52,324 - werkzeug - WARNING -  * Debugger is active!
+2025-08-04 21:31:52,330 - werkzeug - INFO -  * Debugger PIN: 659-134-149
+2025-08-04 21:31:52,330 - werkzeug - INFO -  * Debugger PIN: 659-134-149
+2025-08-04 21:31:52,330 - werkzeug - INFO -  * Debugger PIN: 659-134-149
+2025-08-04 21:31:54,344 - photo_api - INFO - Starting Flask application in debug mode
+2025-08-04 21:31:54,344 - photo_api - INFO - Starting Flask application in debug mode
+2025-08-04 21:31:54,344 - photo_api - INFO - Starting Flask application in debug mode
+2025-08-04 21:31:58,145 - photo_api - INFO - Starting Flask application in debug mode
+2025-08-04 21:31:58,145 - photo_api - INFO - Starting Flask application in debug mode
+2025-08-04 21:31:58,145 - photo_api - INFO - Starting Flask application in debug mode
+2025-08-04 21:33:14,388 - photo_api - INFO - Starting Flask application in debug mode
+2025-08-04 21:33:14,388 - photo_api - INFO - Starting Flask application in debug mode
+2025-08-04 21:33:14,388 - photo_api - INFO - Starting Flask application in debug mode

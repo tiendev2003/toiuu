@@ -44,6 +44,31 @@ def log_response_info(response):
 # Thêm cache cho QR code
 qr_cache = {}
 
+# Cache cho upload để tránh upload cùng file nhiều lần
+upload_cache = {}
+
+def cleanup_old_cache():
+    """Cleanup cache entries older than 1 hour"""
+    import time
+    current_time = time.time()
+    keys_to_remove = []
+    
+    for key in upload_cache:
+        # Extract timestamp from cache key
+        try:
+            timestamp = float(key.split('_')[-1])
+            if current_time - timestamp > 3600:  # 1 hour
+                keys_to_remove.append(key)
+        except (ValueError, IndexError):
+            continue
+    
+    for key in keys_to_remove:
+        del upload_cache[key]
+    
+    # Cleanup QR cache if it gets too large
+    if len(qr_cache) > 100:
+        qr_cache.clear()
+
 def get_qr_code(url, size=(200, 200)):
     """Cache QR codes để tránh tạo lại nhiều lần"""
     if url in qr_cache:
@@ -96,6 +121,9 @@ def update_media_session(media_session_code, image_url=None, video_url=None, fas
 @performance_monitor
 def process_image_task(frame_type, image_files, positions, photo_width, photo_height, background_img, overlay_img, total_width, total_height, unique_id, media_session_code=None, filter_id=None):
     try:
+        # Cleanup old cache entries periodically
+        cleanup_old_cache()
+        
         # Sử dụng daily folder để lưu file
         daily_output_folder = get_daily_folder(OUTPUT_FOLDER)
         image_output_file = os.path.join(daily_output_folder, f"photobooth_result_{unique_id}.jpg")
@@ -157,11 +185,21 @@ def process_image_task(frame_type, image_files, positions, photo_width, photo_he
         # Upload ảnh lên host để lưu trữ
         if os.path.exists(image_output_file):
             try:
-                uploaded_url = upload_image_to_host(image_output_file)
+                # Sử dụng cache để tránh upload cùng file nhiều lần
+                file_hash = f"{os.path.basename(image_output_file)}_{os.path.getmtime(image_output_file)}"
+                if file_hash not in upload_cache:
+                    uploaded_url = upload_image_to_host(image_output_file)
+                    if uploaded_url:
+                        upload_cache[file_hash] = uploaded_url
+                        logger.info(f"Image uploaded and cached: {uploaded_url}")
+                else:
+                    uploaded_url = upload_cache[file_hash]
+                    logger.info(f"Using cached upload URL: {uploaded_url}")
+                
                 if uploaded_url and media_session_code:
                     # Cập nhật media session với URL đã upload
                     update_media_session(media_session_code, image_url=uploaded_url)
-                    logger.info(f"Image uploaded and media session updated: {uploaded_url}")
+                    logger.info(f"Media session updated with URL: {uploaded_url}")
             except Exception as e:
                 logger.warning(f"Failed to upload image to host: {e}")
         
@@ -687,5 +725,6 @@ def get_print_server_info():
         }), 500
 
 if __name__ == '__main__':
-    logger.info("Starting Flask application in debug mode")
-    app.run(debug=True, host='0.0.0.0', port=4000)
+    logger.info("Starting Flask application")
+    # Tắt debug mode để tránh multiple processes và threading issues
+    app.run(debug=False, host='0.0.0.0', port=5000, threaded=True, use_reloader=False)

@@ -6,6 +6,11 @@ import os
 def setup_logging():
     os.makedirs('logs', exist_ok=True)
     logger = logging.getLogger('photo_api')
+    
+    # Tránh thêm handlers nhiều lần khi Flask restart
+    if logger.handlers:
+        return logger
+    
     logger.setLevel(logging.INFO)
     
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -24,7 +29,8 @@ def setup_logging():
     logger.addHandler(console_handler)
     
     app_logger = logging.getLogger('werkzeug')
-    app_logger.setLevel(logging.INFO)
-    app_logger.addHandler(file_handler)
+    if not app_logger.handlers:
+        app_logger.setLevel(logging.INFO)
+        app_logger.addHandler(file_handler)
     
     return logger
