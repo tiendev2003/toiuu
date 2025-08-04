@@ -15,7 +15,8 @@ from utils.image_processing import get_frame_type, get_frame_size, calc_position
 from utils.video_processing import process_video_task, process_fast_video_task
 from utils.filters import apply_filter_to_image
 from utils.performance import performance_monitor, log_system_stats
-from utils.printer import get_printers_list, send_print_job, get_print_status, is_print_server
+from utils.printer import get_printers_list, send_print_job, get_print_status, is_print_server, send_print_job_to_server
+from utils.upload import upload_image_to_host
 from config import (
     UPLOAD_FOLDER, OUTPUT_FOLDER, FRAME_TYPES, FRAME_MARGINS, FRAME_GAPS, 
     GAP_DEFAULT, GAP_PROCESSING, VIDEO_FPS, FAST_VIDEO_DURATION, 
@@ -558,13 +559,6 @@ def print_image():
                 "message": "Printer name is required"
             }), 400
         
-        if not is_print_server():
-            return jsonify({
-                "success": False,
-                "error": "not_print_server",
-                "message": "Current machine is not configured as print server"
-            }), 400
-        
         # Tìm file ảnh trong daily folders
         daily_output_folder = get_daily_folder(OUTPUT_FOLDER)
         image_path = os.path.join(daily_output_folder, image_filename)
@@ -585,11 +579,33 @@ def print_image():
                     "message": f"Image file '{image_filename}' not found"
                 }), 404
         
-        # Gửi lệnh in
-        result = send_print_job(image_path, printer_name, copies, paper_size)
+        # Upload ảnh lên server trước
+        logger.info(f"Uploading image to server: {image_filename}")
+        image_url = upload_image_to_host(image_path)
+        
+        if not image_url:
+            return jsonify({
+                "success": False,
+                "error": "upload_failed",
+                "message": "Failed to upload image to server"
+            }), 500
+        
+        logger.info(f"Image uploaded successfully: {image_url}")
+        
+        # Kiểm tra xem máy hiện tại có phải máy chủ in không
+        if is_print_server():
+            # Nếu là máy chủ in, in trực tiếp
+            logger.info(f"Printing locally on print server: {image_filename}")
+            result = send_print_job(image_path, printer_name, copies, paper_size)
+        else:
+            # Nếu không phải máy chủ in, gửi lệnh in qua API
+            logger.info(f"Sending print job to print server: {image_filename}")
+            result = send_print_job_to_server(image_url, printer_name, copies, paper_size)
         
         if result["success"]:
-            logger.info(f"Print job sent: {image_filename} to {printer_name} ({copies} copies)")
+            logger.info(f"Print job processed: {image_filename} to {printer_name} ({copies} copies)")
+            # Thêm thông tin về image URL vào response
+            result["image_url"] = image_url
             return jsonify(result), 200
         else:
             return jsonify(result), 500

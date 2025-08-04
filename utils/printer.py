@@ -293,6 +293,73 @@ def send_print_job_system(image_path: str, printer_name: str, copies: int = 1, p
             "message": f"Unexpected error: {e}"
         }
 
+def send_print_job_to_server(image_url: str, printer_name: str, copies: int = 1, paper_size: str = "4x6") -> Dict[str, Any]:
+    """
+    Gửi lệnh in đến máy chủ in qua API
+    Args:
+        image_url: URL của ảnh cần in (đã upload lên server)
+        printer_name: Tên máy in
+        copies: Số bản in
+        paper_size: Kích thước giấy
+    Returns:
+        Dict chứa kết quả in
+    """
+    try:
+        # Chuẩn bị payload
+        print_payload = {
+            "image_url": image_url,
+            "printer_name": printer_name,
+            "copies": copies,
+            "paper_size": paper_size,
+            "color_mode": "color",
+            "quality": "high"
+        }
+        
+        # Gửi lệnh in qua API đến máy chủ in
+        response = requests.post(
+            f"http://{PRINT_SERVER_IP}:{PRINT_SERVER_PORT}{PRINT_API_ENDPOINT}",
+            json=print_payload,
+            timeout=30
+        )
+        
+        if response.status_code == 200:
+            result = response.json()
+            logger.info(f"Print job sent to server successfully: {result}")
+            return {
+                "success": True,
+                "job_id": result.get("job_id"),
+                "message": "Print job sent to print server",
+                "printer": printer_name,
+                "copies": copies,
+                "server_response": result
+            }
+        else:
+            error_msg = f"Print server API failed: {response.status_code} - {response.text}"
+            logger.error(error_msg)
+            return {
+                "success": False,
+                "error": "print_server_api_failed",
+                "message": error_msg
+            }
+    
+    except requests.exceptions.RequestException as e:
+        error_msg = f"Network error sending print job to server: {str(e)}"
+        logger.error(error_msg)
+        return {
+            "success": False,
+            "error": "network_error",
+            "message": error_msg
+        }
+    
+    except Exception as e:
+        error_msg = f"Unexpected error sending print job to server: {str(e)}"
+        logger.error(error_msg)
+        return {
+            "success": False,
+            "error": "unexpected_error",
+            "message": error_msg
+        }
+
 def send_print_job(image_path: str, printer_name: str, copies: int = 1, paper_size: str = "4x6") -> Dict[str, Any]:
     """
     Gửi lệnh in tới máy in

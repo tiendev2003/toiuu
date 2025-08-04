@@ -5,6 +5,7 @@ import tempfile
 from typing import Optional
 
 UPLOAD_VIDEO_URL = "https://upload.dananggo.com/api.php?action=upload_video"
+UPLOAD_IMAGE_URL = "https://upload.dananggo.com/api.php?action=upload_image"
 
 def cleanup_local_video_file(file_path: str) -> bool:
     """
@@ -98,3 +99,76 @@ def upload_video_to_host(video_file_path: str, cleanup_after_upload: bool = True
                 from utils.logging import setup_logging
                 logger = setup_logging()
                 logger.warning(f"Failed to cleanup local video file {video_file_path}: {e}")
+
+def upload_image_to_host(image_file_path: str, cleanup_after_upload: bool = False) -> Optional[str]:
+    """
+    Upload image file to remote host
+    
+    Args:
+        image_file_path: Path to the image file to upload
+        cleanup_after_upload: Whether to delete local file after upload
+        
+    Returns:
+        URL of uploaded image or None if failed
+    """
+    try:
+        if not os.path.exists(image_file_path):
+            raise FileNotFoundError(f"Image file not found: {image_file_path}")
+        
+        # Prepare form data
+        with open(image_file_path, 'rb') as image_file:
+            files = {'image': image_file}
+            
+            # Make upload request
+            response = requests.post(
+                UPLOAD_IMAGE_URL,
+                files=files,
+                timeout=60  # 1 minute timeout for images
+            )
+            
+            response.raise_for_status()  # Raise exception for bad status codes
+            
+            # Parse response
+            result = response.json() if response.headers.get('content-type', '').startswith('application/json') else response.text
+            # Expecting similar format as video upload
+            result = result.get('data', {}) if isinstance(result, dict) else {}
+            
+            from utils.logging import setup_logging
+            logger = setup_logging()
+            logger.info(f"Image upload response: {result.get('url', 'No URL found')}")
+            
+            # Extract image URL from response
+            if isinstance(result, dict):
+                if result.get('status') == 'success' and 'url' in result:
+                    return "https://upload.dananggo.com/"+result['url']
+                elif 'url' in result:
+                    return "https://upload.dananggo.com/"+result['url']
+            elif isinstance(result, str):
+                # If response is just the URL as text
+                if result.startswith('http'):
+                    return result.strip()
+            
+            # Log response for debugging
+            logger.warning(f"Unexpected image upload response: {result}")
+            return None
+            
+    except requests.exceptions.RequestException as e:
+        from utils.logging import setup_logging
+        logger = setup_logging()
+        logger.error(f"Image upload request failed: {e}")
+        return None
+    except Exception as e:
+        from utils.logging import setup_logging
+        logger = setup_logging()
+        logger.error(f"Image upload error: {e}")
+        return None
+    finally:
+        # Clean up local file after upload attempt (if requested)
+        if cleanup_after_upload:
+            try:
+                if os.path.exists(image_file_path):
+                    os.remove(image_file_path)
+            except Exception as e:
+                from utils.logging import setup_logging
+                logger = setup_logging()
+                logger.warning(f"Failed to cleanup local image file {image_file_path}: {e}")
