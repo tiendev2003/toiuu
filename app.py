@@ -165,6 +165,29 @@ def process_image_task(frame_type, image_files, positions, photo_width, photo_he
             except Exception as e:
                 logger.warning(f"Failed to upload image to host: {e}")
         
+        # Tự động gọi hàm in ngay sau khi tạo ảnh
+        try:
+            # Xác định máy in dựa vào frame type
+            printer_name = "DS-RX1_Cut" if frame_type.get("isCustom", False) else "DS-RX1"
+            
+            # Kiểm tra xem máy hiện tại có phải máy chủ in không
+            if is_print_server():
+                # Nếu là máy chủ in, in trực tiếp từ file local
+                logger.info(f"Auto printing locally: {os.path.basename(image_output_file)} to {printer_name}")
+                print_result = send_print_job(image_output_file, printer_name, copies=1, paper_size="4x6")
+            else:
+                # Nếu không phải máy chủ in, gửi file đến máy chủ in qua API
+                logger.info(f"Auto sending print job to server: {os.path.basename(image_output_file)} to {printer_name}")
+                print_result = send_print_job_to_server(image_output_file, printer_name, copies=1, paper_size="4x6")
+            
+            if print_result["success"]:
+                logger.info(f"Auto print job successful: {print_result.get('job_id', 'unknown')} - {printer_name}")
+            else:
+                logger.warning(f"Auto print job failed: {print_result.get('message', 'unknown error')}")
+                
+        except Exception as e:
+            logger.warning(f"Failed to auto print: {e}")
+        
         return image_output_file
     except Exception as e:
         logger.error(f"Error in image processing: {str(e)}")
