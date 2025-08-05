@@ -2486,3 +2486,17 @@
 2025-08-04 21:33:14,388 - photo_api - INFO - Starting Flask application in debug mode
 2025-08-04 21:33:14,388 - photo_api - INFO - Starting Flask application in debug mode
 2025-08-04 21:33:14,388 - photo_api - INFO - Starting Flask application in debug mode
+2025-08-04 22:09:37,726 - photo_api - INFO - Starting Flask application
+2025-08-04 22:09:37,751 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:4000
+ * Running on http://192.168.1.9:4000
+2025-08-04 22:09:37,751 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-04 22:09:47,419 - photo_api - INFO - [REQUEST] POST http://localhost:4000/api/process-image from IP: 127.0.0.1
+2025-08-04 22:09:48,426 - photo_api - INFO - [SYSTEM] CPU: 18.2%, Memory: 82.7% (2834MB free), Disk: 198.8GB free
+2025-08-04 22:09:48,431 - photo_api - INFO - [RESPONSE] POST http://localhost:4000/api/process-image - Status: 400 - IP: 127.0.0.1
+2025-08-04 22:09:48,432 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:09:48] "[31m[1mPOST /api/process-image HTTP/1.1[0m" 400 -
+2025-08-04 22:10:45,250 - photo_api - INFO - [REQUEST] POST http://localhost:4000/api/process-video from IP: 127.0.0.1
+2025-08-04 22:10:49,199 - photo_api - INFO - Media session updated: {'id': '52ccab49-b5df-4823-80f2-f16389900666', 'sessionCode': 'gLPywyuDTT', 'imageUrl': 'https://s.mayphotobooth.com/backend/outputs/photobooth_result_b0ee7bde-4032-4e86-a5d7-2b62d8c04fda.jpg', 'videoUrl': 'https://upload.dananggo.com/videos/04_08_2025/6890cd7721d42_1754320247.mp4', 'gifUrl': 'https://upload.dananggo.com/videos/04_08_2025/6890cd76bdf11_1754320246.mp4', 'status': 'COMPLETED', 'storeId': '65a3ed4b-d5bf-47dc-ac5f-57486cc0bad1', 'createdAt': '2025-08-03T17:09:54.999Z', 'updatedAt': '2025-08-04T15:10:49.363Z', 'expiresAt': '2025-08-06T17:09:54.998Z'}
+2025-08-04 22:10:49,201 - photo_api - INFO - [RESPONSE] POST http://localhost:4000/api/process-video - Status: 200 - IP: 127.0.0.1
+2025-08-04 22:10:49,208 - werkzeug - INFO - 127.0.0.1 - - [04/Aug/2025 22:10:49] "POST /api/process-video HTTP/1.1" 200 -

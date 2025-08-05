@@ -40,7 +40,13 @@ def save_uploaded_files(files, background_file, overlay_file, folder=UPLOAD_FOLD
     
     for file in files:
         if file and allowed_file(file.filename):
-            file_path = save_file(file, folder)
+            # Xử lý đặc biệt cho WebM files từ browser
+            prefix = ""
+            if file.filename.lower().endswith('.webm'):
+                prefix = "webm_"
+                print(f"[FILE HANDLING] Detected WebM file: {file.filename}")
+            
+            file_path = save_file(file, folder, prefix)
             if file_path:
                 saved_files.append(file_path)
                 image_files.append(file_path)

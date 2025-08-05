@@ -10,7 +10,7 @@ import requests
 import qrcode
 from PIL import Image, ImageDraw, ImageEnhance
 from utils.logging import setup_logging
-from utils.file_handling import save_uploaded_files, cleanup_files, allowed_file
+from utils.file_handling import save_uploaded_files, cleanup_files, allowed_file, save_file
 from utils.image_processing import get_frame_type, get_frame_size, calc_positions, paste_image, fit_cover_image
 from utils.video_processing import process_video_task, process_fast_video_task
 from utils.filters import apply_filter_to_image
@@ -301,6 +301,53 @@ def process_image():
         logger.error(f"[IMAGE PROCESSING] Error: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
+@app.route('/api/convert-video', methods=['POST'])
+def convert_video():
+    """
+    Endpoint để convert video WebM từ client sang MP4 trước khi xử lý chính
+    """
+    saved_files = []
+    try:
+        files = request.files.getlist('files')
+        if not files:
+            return jsonify({"error": "No files provided"}), 400
+        
+        converted_results = []
+        
+        for file in files:
+            if file and allowed_file(file.filename):
+                # Save file tạm thời
+                temp_path = save_file(file, UPLOAD_FOLDER, "temp_")
+                saved_files.append(temp_path)
+                
+                # Convert nếu là WebM
+                from utils.video_processing import convert_webm_to_mp4
+                converted_path = convert_webm_to_mp4(temp_path)
+                
+                if converted_path != temp_path:
+                    saved_files.append(converted_path)
+                
+                # Tạo response với info video
+                file_info = {
+                    "original_name": file.filename,
+                    "converted_path": os.path.basename(converted_path),
+                    "size": os.path.getsize(converted_path),
+                    "format": "mp4" if converted_path.endswith('.mp4') else os.path.splitext(converted_path)[1][1:]
+                }
+                
+                converted_results.append(file_info)
+        
+        return jsonify({
+            "success": True,
+            "converted_files": converted_results,
+            "message": f"Converted {len(converted_results)} files successfully"
+        }), 200
+        
+    except Exception as e:
+        cleanup_files(saved_files)
+        logger.error(f"[VIDEO CONVERT API] Error: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/api/process-video', methods=['POST'])
 def process_video():
     saved_files = []  # Initialize saved_files to avoid UnboundLocalError
@@ -326,6 +373,18 @@ def process_video():
         if not video_files:
             cleanup_files(saved_files)
             return jsonify({"error": "No valid video files"}), 400
+        
+        # Convert WebM files to MP4 for better compatibility
+        from utils.video_processing import convert_webm_to_mp4
+        converted_files = []
+        for video_file in video_files:
+            converted_file = convert_webm_to_mp4(video_file)
+            if converted_file:
+                converted_files.append(converted_file)
+                saved_files.append(converted_file)
+            else:
+                converted_files.append(video_file)  # Keep original if conversion fails
+        video_files = converted_files
         
         margin = get_frame_margin(frame_type_choice)
         gap = get_frame_gap(frame_type_choice)

@@ -15,9 +15,10 @@ from .image_processing import fit_cover_image, calc_positions
 def create_video_writer(output_file, fps, width, height):
     """
     Tạo VideoWriter với fallback codec để tránh lỗi OpenH264
+    Ưu tiên codec có độ tương thích cao nhất với WebM conversion
     """
-    # Danh sách codec theo thứ tự ưu tiên
-    codecs = ['mp4v', 'MJPG', 'XVID', 'MP4V']
+    # Danh sách codec theo thứ tự ưu tiên cho compatibility tốt nhất
+    codecs = ['mp4v', 'H264', 'MJPG', 'XVID', 'MP4V']
     
     for codec in codecs:
         try:
@@ -34,6 +35,48 @@ def create_video_writer(output_file, fps, width, height):
             continue
     
     raise ValueError(f"Cannot create video output with any available codec. Tried: {codecs}")
+
+def optimize_video_for_opencv(input_file):
+    """
+    Tối ưu hóa video đặc biệt cho OpenCV processing
+    """
+    if not shutil.which('ffmpeg'):
+        return input_file
+    
+    try:
+        # Kiểm tra info video trước
+        video_info = get_video_info(input_file)
+        if not video_info:
+            return input_file
+        
+        file_dir = os.path.dirname(input_file)
+        file_name = os.path.basename(input_file)
+        file_name_no_ext = os.path.splitext(file_name)[0]
+        optimized_file = os.path.join(file_dir, f"opencv_optimized_{file_name_no_ext}.mp4")
+        
+        # Command tối ưu cho OpenCV
+        cmd = [
+            'ffmpeg', '-y', '-i', input_file,
+            '-c:v', 'libx264',  # H.264 for best OpenCV compatibility
+            '-preset', 'ultrafast',  # Faster encoding
+            '-crf', '28',  # Balanced quality for processing
+            '-pix_fmt', 'yuv420p',  # Pixel format OpenCV handles well
+            '-r', str(min(video_info.get('fps', 30), 30)),  # Cap FPS at 30
+            '-an',  # Remove audio for video processing
+            optimized_file
+        ]
+        
+        print(f"[VIDEO OPTIMIZE] Optimizing {input_file} for OpenCV...")
+        subprocess.run(cmd, check=True, capture_output=True)
+        
+        if os.path.exists(optimized_file) and os.path.getsize(optimized_file) > 0:
+            print(f"[VIDEO OPTIMIZE] Successfully optimized: {optimized_file}")
+            return optimized_file
+        
+    except subprocess.CalledProcessError as e:
+        print(f"[VIDEO OPTIMIZE] FFmpeg optimization failed: {e}")
+        
+    return input_file
 
 def apply_background_and_overlay_video(frame, background_path, overlay_path, output_size, frame_type=None):
     scale_factor = min(1500 / max(output_size), 1.0) if max(output_size) > 2000 else 1.0
@@ -127,6 +170,17 @@ def process_video_frame(frame, media, pos, size, is_circle, frame_type=None):
     frame[pos[1]:pos[1]+size[1], pos[0]:pos[0]+size[0]] = media
     return frame
 
+def convert_webm_to_mp4(input_file):
+    """
+    Chuyển đổi file WebM sang MP4 để tăng tương thích với OpenCV
+    """
+    if not input_file.lower().endswith('.webm'):
+        return input_file  # Không cần convert nếu không phải WebM
+    
+    # Sử dụng WebM handler chuyên dụng
+    from utils.webm_handler import prepare_webm_for_processing
+    return prepare_webm_for_processing(input_file)
+
 def get_video_info(video_path):
     """Lấy thông tin video bằng ffprobe"""
     try:
@@ -193,10 +247,23 @@ def create_video_output(frame_type, video_files, background_path, overlay_path, 
     photo_height = int(photo_height * scale_factor)
     
     caps = [cv2.VideoCapture(video_file, cv2.CAP_FFMPEG) for video_file in video_files]
+    
+    # Optimize files for OpenCV if needed
+    optimized_files = []
+    for i, video_file in enumerate(video_files):
+        if not caps[i].isOpened():
+            print(f"[VIDEO] Failed to open {video_file}, trying optimization...")
+            optimized_file = optimize_video_for_opencv(video_file)
+            caps[i].release()
+            caps[i] = cv2.VideoCapture(optimized_file, cv2.CAP_FFMPEG)
+            optimized_files.append(optimized_file)
+        else:
+            optimized_files.append(video_file)
+    
     if not all(cap.isOpened() for cap in caps):
         for cap in caps:
             cap.release()
-        raise ValueError("Cannot open video files!")
+        raise ValueError("Cannot open video files even after optimization!")
     
     fps = min([cap.get(cv2.CAP_PROP_FPS) or VIDEO_FPS for cap in caps])
     total_frames = int(duration * fps)
@@ -294,10 +361,23 @@ def create_fast_video_output(frame_type, video_files, background_path, overlay_p
     photo_height = int(photo_height * scale_factor)
     
     caps = [cv2.VideoCapture(video_file, cv2.CAP_FFMPEG) for video_file in video_files]
+    
+    # Optimize files for OpenCV if needed (fast video processing)
+    optimized_files = []
+    for i, video_file in enumerate(video_files):
+        if not caps[i].isOpened():
+            print(f"[FAST VIDEO] Failed to open {video_file}, trying optimization...")
+            optimized_file = optimize_video_for_opencv(video_file)
+            caps[i].release()
+            caps[i] = cv2.VideoCapture(optimized_file, cv2.CAP_FFMPEG)
+            optimized_files.append(optimized_file)
+        else:
+            optimized_files.append(video_file)
+    
     if not all(cap.isOpened() for cap in caps):
         for cap in caps:
             cap.release()
-        raise ValueError("Cannot open video files!")
+        raise ValueError("Cannot open video files even after optimization!")
     
     fps = min([cap.get(cv2.CAP_PROP_FPS) or VIDEO_FPS for cap in caps])
     fast_duration = FAST_VIDEO_DURATION
