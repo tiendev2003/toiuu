@@ -1,0 +1,29 @@
+2025-08-08 21:39:27,259 - photo_api - INFO - Starting Flask application
+2025-08-08 21:39:27,293 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.5:5000
+2025-08-08 21:39:27,294 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-08 21:39:34,159 - photo_api - INFO - [REQUEST] POST http://localhost:5000/api/process-video from IP: 127.0.0.1
+2025-08-08 21:39:34,194 - photo_api - INFO - Preparing WebM file for processing: D:\trancongtien\python\toiuu\uploads\webm_5df3a8a2-7a02-4ffc-a819-d067fccf5069_943bcdd7-4c83-4a6f-8a99-c62e515a57ff.webm
+2025-08-08 21:39:34,556 - photo_api - INFO - WebM file can be processed directly
+2025-08-08 21:39:34,557 - photo_api - INFO - Preparing WebM file for processing: D:\trancongtien\python\toiuu\uploads\webm_20fb78b1-a760-4cf7-8d15-1fd957d4a9ef_711bf10d-a4e9-48eb-a015-545a5ab30370.webm
+2025-08-08 21:39:34,624 - photo_api - INFO - WebM file can be processed directly
+2025-08-08 21:39:34,624 - photo_api - INFO - Preparing WebM file for processing: D:\trancongtien\python\toiuu\uploads\webm_ae9448de-d7ee-4de9-b36a-cc47d04d46f9_29819a3e-a627-4655-8bb4-018783b46f92.webm
+2025-08-08 21:39:34,691 - photo_api - INFO - WebM file can be processed directly
+2025-08-08 21:39:34,692 - photo_api - INFO - Preparing WebM file for processing: D:\trancongtien\python\toiuu\uploads\webm_71612eb1-3827-469d-b4dc-afbe8b48ea6a_29819a3e-a627-4655-8bb4-018783b46f92.webm
+2025-08-08 21:39:34,760 - photo_api - INFO - WebM file can be processed directly
+2025-08-08 21:39:34,760 - photo_api - INFO - Preparing WebM file for processing: D:\trancongtien\python\toiuu\uploads\webm_66f6ab6c-42cd-42ad-90eb-cd396e4e3125_29819a3e-a627-4655-8bb4-018783b46f92_-_Copy.webm
+2025-08-08 21:39:34,827 - photo_api - INFO - WebM file can be processed directly
+2025-08-08 21:39:34,828 - photo_api - INFO - Preparing WebM file for processing: D:\trancongtien\python\toiuu\uploads\webm_124741a5-c6eb-4e88-86e1-731b4b1ed0b9_a79d71ff-90b2-489e-b3d4-04bc06e4b199.webm
+2025-08-08 21:39:34,896 - photo_api - INFO - WebM file can be processed directly
+2025-08-08 21:39:34,898 - photo_api - INFO - Starting video processing task - duration: 10s, upload: True
+2025-08-08 21:39:34,898 - photo_api - INFO - Starting fast video processing task - original duration: 10s, upload: True
+2025-08-08 21:39:44,131 - photo_api - INFO - Upload video response: {'success': True, 'message': 'Upload video thành công', 'data': {'original_name': 'photobooth_fast_6caec0b1-c02a-4131-b2c2-4ccc14be5b82.mp4', 'new_name': '68960c2cddf84_1754663980.mp4', 'size': '134.3 KB', 'type': 'video', 'url': 'videos/08_08_2025/68960c2cddf84_1754663980.mp4', 'upload_time': '2025-08-08 21:39:40', 'date_folder': '08_08_2025', 'applied_filter': 'none', 'quality': 85, 'enhancements': {'brightness': 100, 'contrast': 100, 'saturation': 100}}}
+2025-08-08 21:39:44,132 - photo_api - INFO - Video uploaded successfully: https://upload.dananggo.com/videos/08_08_2025/68960c2cddf84_1754663980.mp4
+2025-08-08 21:39:44,134 - photo_api - INFO - Fast video processing completed successfully: https://upload.dananggo.com/videos/08_08_2025/68960c2cddf84_1754663980.mp4
+2025-08-08 21:39:46,313 - photo_api - INFO - Upload video response: {'success': True, 'message': 'Upload video thành công', 'data': {'original_name': 'photobooth_result_7bca751b-b996-408d-831d-40e7b8955b5a.mp4', 'new_name': '68960c2f16d16_1754663983.mp4', 'size': '671.36 KB', 'type': 'video', 'url': 'videos/08_08_2025/68960c2f16d16_1754663983.mp4', 'upload_time': '2025-08-08 21:39:43', 'date_folder': '08_08_2025', 'applied_filter': 'none', 'quality': 85, 'enhancements': {'brightness': 100, 'contrast': 100, 'saturation': 100}}}
+2025-08-08 21:39:46,314 - photo_api - INFO - Video uploaded successfully: https://upload.dananggo.com/videos/08_08_2025/68960c2f16d16_1754663983.mp4
+2025-08-08 21:39:46,316 - photo_api - INFO - Video processing completed successfully: https://upload.dananggo.com/videos/08_08_2025/68960c2f16d16_1754663983.mp4
+2025-08-08 21:39:46,319 - photo_api - INFO - [RESPONSE] POST http://localhost:5000/api/process-video - Status: 200 - IP: 127.0.0.1
+2025-08-08 21:39:46,321 - werkzeug - INFO - 127.0.0.1 - - [08/Aug/2025 21:39:46] "POST /api/process-video HTTP/1.1" 200 -

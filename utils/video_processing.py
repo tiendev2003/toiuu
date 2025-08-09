@@ -1,4 +1,5 @@
 # utils/video_processing.py
+import sys
 import cv2
 import numpy as np
 from PIL import Image
@@ -11,14 +12,35 @@ import json
 from pathlib import Path
 from config import VIDEO_FPS, FAST_VIDEO_DURATION, OUTPUT_FOLDER, get_frame_margin, get_frame_gap, FRAME_TYPES, get_daily_folder
 from .image_processing import fit_cover_image, calc_positions
+from .ffmpeg_utils import get_ffmpeg_command, get_ffprobe_command, check_ffmpeg_availability, check_ffprobe_availability
+
+def get_ffmpeg_path():
+    """Deprecated: Use ffmpeg_utils.get_ffmpeg_command() instead"""
+    try:
+        return get_ffmpeg_command()
+    except FileNotFoundError:
+        if getattr(sys, 'frozen', False):  # Running from .exe
+            return os.path.join(sys._MEIPASS, 'ffmpeg.exe')
+        else:
+            return os.path.join(os.path.dirname(__file__), 'ffmpeg.exe')
+
+def get_ffprobe_path():
+    """Deprecated: Use ffmpeg_utils.get_ffprobe_command() instead"""
+    try:
+        return get_ffprobe_command()
+    except FileNotFoundError:
+        if getattr(sys, 'frozen', False):  # Running from .exe
+            return os.path.join(sys._MEIPASS, 'ffprobe.exe')
+        else:
+            return os.path.join(os.path.dirname(__file__), 'ffprobe.exe')
 
 def create_video_writer(output_file, fps, width, height):
     """
     Tạo VideoWriter với fallback codec để tránh lỗi OpenH264
-    Ưu tiên codec có độ tương thích cao nhất với WebM conversion
+    Ưu tiên codec có độ tương thích cao nhất với web browsers
     """
-    # Danh sách codec theo thứ tự ưu tiên cho compatibility tốt nhất
-    codecs = ['mp4v', 'H264', 'MJPG', 'XVID', 'MP4V']
+    # Danh sách codec theo thứ tự ưu tiên cho web compatibility tốt nhất
+    codecs = ['mp4v', 'avc1', 'H264', 'XVID', 'MJPG', 'MP4V']
     
     for codec in codecs:
         try:
@@ -40,7 +62,7 @@ def optimize_video_for_opencv(input_file):
     """
     Tối ưu hóa video đặc biệt cho OpenCV processing
     """
-    if not shutil.which('ffmpeg'):
+    if not check_ffmpeg_availability():
         return input_file
     
     try:
@@ -55,8 +77,9 @@ def optimize_video_for_opencv(input_file):
         optimized_file = os.path.join(file_dir, f"opencv_optimized_{file_name_no_ext}.mp4")
         
         # Command tối ưu cho OpenCV
+        ffmpeg_cmd = get_ffmpeg_command()
         cmd = [
-            'ffmpeg', '-y', '-i', input_file,
+            ffmpeg_cmd, '-y', '-i', input_file,
             '-c:v', 'libx264',  # H.264 for best OpenCV compatibility
             '-preset', 'ultrafast',  # Faster encoding
             '-crf', '28',  # Balanced quality for processing
@@ -183,9 +206,14 @@ def convert_webm_to_mp4(input_file):
 
 def get_video_info(video_path):
     """Lấy thông tin video bằng ffprobe"""
+    if not check_ffprobe_availability():
+        return None
+        
     try:
+        ffprobe_cmd = get_ffprobe_command()
+        
         cmd = [
-            'ffprobe', '-v', 'quiet', '-print_format', 'json', 
+            ffprobe_cmd, '-v', 'quiet', '-print_format', 'json', 
             '-show_format', '-show_streams', video_path
         ]
         result = subprocess.run(cmd, capture_output=True, text=True, check=True)
@@ -205,28 +233,150 @@ def get_video_info(video_path):
         return None
  
 def optimize_video(video_file):
-    """Tối ưu hóa video với FFmpeg"""
-    if not shutil.which('ffmpeg'):
-        return video_file
+    """Tối ưu hóa video với FFmpeg hoặc basic optimization nếu không có FFmpeg"""
+    if not check_ffmpeg_availability():
+        print(f"FFmpeg not available, applying basic optimization: {video_file}")
+        return basic_video_optimization(video_file)
     
     file_dir = os.path.dirname(video_file)
     file_name = os.path.basename(video_file)
     optimized_file = os.path.join(file_dir, f"optimized_{file_name}")
     
     try:
+        # Kiểm tra thông tin video trước khi optimize
+        video_info = get_video_info(video_file)
+        if not video_info:
+            print(f"Cannot get video info, applying basic optimization: {video_file}")
+            return basic_video_optimization(video_file)
+        
+        # Sử dụng ffmpeg path thực tế
+        ffmpeg_cmd = get_ffmpeg_command()
+        
+        print(f"Optimizing video with FFmpeg: {video_file}")
         cmd = [
-            'ffmpeg', '-y', '-i', video_file,
-            '-c:v', 'copy', '-movflags', '+faststart',
+            ffmpeg_cmd, '-y', '-i', video_file,
+            '-c:v', 'libx264',  # Ensure H.264 codec
+            '-preset', 'fast',   # Fast encoding
+            '-crf', '23',        # Good quality
+            '-movflags', '+faststart',  # Web optimization - VERY IMPORTANT
+            '-pix_fmt', 'yuv420p',  # Compatibility with all browsers
+            '-profile:v', 'baseline',  # Maximum compatibility
+            '-level', '3.0',     # Wide device support
             optimized_file
         ]
-        subprocess.run(cmd, check=True, capture_output=True)
+        
+        result = subprocess.run(cmd, check=True, capture_output=True, text=True)
         
         if os.path.exists(optimized_file) and os.path.getsize(optimized_file) > 0:
-            os.replace(optimized_file, video_file)
+            print(f"Video optimization successful: {optimized_file}")
+            
+            # Kiểm tra video sau optimize có hợp lệ không
+            if verify_video_file_integrity(optimized_file):
+                # Thay thế file gốc bằng file đã optimize
+                try:
+                    os.replace(optimized_file, video_file)
+                    print(f"Replaced original with optimized: {video_file}")
+                except OSError as e:
+                    print(f"Failed to replace original file: {e}")
+                    # Trả về file optimized nếu không thể thay thế
+                    return optimized_file
+            else:
+                print(f"Optimized video failed integrity check, using original")
+                if os.path.exists(optimized_file):
+                    os.remove(optimized_file)
+        
         return video_file
-    except subprocess.CalledProcessError:
+        
+    except subprocess.CalledProcessError as e:
+        print(f"FFmpeg optimization failed: {e.stderr}")
         if os.path.exists(optimized_file):
             os.remove(optimized_file)
+        return basic_video_optimization(video_file)
+    except Exception as e:
+        print(f"Video optimization error: {str(e)}")
+        if os.path.exists(optimized_file):
+            os.remove(optimized_file)
+        return basic_video_optimization(video_file)
+
+def basic_video_optimization(video_file):
+    """
+    Basic video optimization without FFmpeg
+    Recreate video with more compatible settings
+    """
+    try:
+        file_dir = os.path.dirname(video_file)
+        file_name = os.path.basename(video_file)
+        optimized_file = os.path.join(file_dir, f"basic_opt_{file_name}")
+        
+        print(f"Applying basic optimization: {video_file}")
+        
+        # Open original video
+        cap = cv2.VideoCapture(video_file, cv2.CAP_FFMPEG)
+        if not cap.isOpened():
+            print(f"Cannot open video for basic optimization: {video_file}")
+            return video_file
+        
+        # Get video properties
+        fps = cap.get(cv2.CAP_PROP_FPS)
+        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        
+        # Ensure even dimensions for better codec compatibility
+        width = width if width % 2 == 0 else width - 1
+        height = height if height % 2 == 0 else height - 1
+        
+        # Create output with web-compatible codec
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # Most compatible
+        out = cv2.VideoWriter(optimized_file, fourcc, fps, (width, height))
+        
+        if not out.isOpened():
+            print(f"Cannot create optimized video writer")
+            cap.release()
+            return video_file
+        
+        print(f"Processing {total_frames} frames for basic optimization...")
+        
+        frame_count = 0
+        while True:
+            ret, frame = cap.read()
+            if not ret:
+                break
+                
+            # Resize if needed
+            if frame.shape[1] != width or frame.shape[0] != height:
+                frame = cv2.resize(frame, (width, height), interpolation=cv2.INTER_LINEAR)
+            
+            out.write(frame)
+            frame_count += 1
+            
+            if frame_count % 30 == 0:  # Progress every second at 30fps
+                print(f"Processed {frame_count}/{total_frames} frames")
+        
+        cap.release()
+        out.release()
+        
+        # Check if optimization was successful
+        if os.path.exists(optimized_file) and os.path.getsize(optimized_file) > 0:
+            if verify_video_file_integrity(optimized_file):
+                print(f"Basic optimization successful: {optimized_file}")
+                try:
+                    os.replace(optimized_file, video_file)
+                    print(f"Replaced original with basic optimized: {video_file}")
+                    return video_file
+                except OSError as e:
+                    print(f"Failed to replace original file: {e}")
+                    return optimized_file
+            else:
+                print(f"Basic optimized video failed integrity check")
+                if os.path.exists(optimized_file):
+                    os.remove(optimized_file)
+        
+        print(f"Basic optimization failed, using original: {video_file}")
+        return video_file
+        
+    except Exception as e:
+        print(f"Basic optimization error: {str(e)}")
         return video_file
 
 def create_video_output(frame_type, video_files, background_path, overlay_path, total_width, total_height, duration=2, upload_to_host=True):
@@ -326,18 +476,30 @@ def create_video_output(frame_type, video_files, background_path, overlay_path, 
         for cap in caps:
             cap.release()
         out.release()
+        cv2.destroyAllWindows()  # Clean up any OpenCV windows
+    
+    # Đảm bảo file hoàn tất trước khi tối ưu và upload
+    import time
+    time.sleep(0.5)  # Wait for file to be completely written
     
     # Optimize video first
     optimized_file = optimize_video(temp_output_file)
     
     # Upload to host if requested
     if upload_to_host:
+        # Kiểm tra tính toàn vẹn của file trước khi upload
+        if not verify_video_file_integrity(optimized_file):
+            print(f"Video file integrity check failed: {optimized_file}")
+            return optimized_file  # Trả về local file nếu có vấn đề
+        
         from utils.upload import upload_video_to_host
         uploaded_url = upload_video_to_host(optimized_file, cleanup_after_upload=False)  # Không xóa file local
         if uploaded_url:
+            print(f"Video uploaded successfully: {uploaded_url}")
             return uploaded_url
         else:
             # Nếu upload thất bại, trả về đường dẫn local
+            print(f"Upload failed, using local file: {optimized_file}")
             return optimized_file
     else:
         # Trả về đường dẫn local file
@@ -450,29 +612,88 @@ def create_fast_video_output(frame_type, video_files, background_path, overlay_p
         for cap in caps:
             cap.release()
         out.release()
+        cv2.destroyAllWindows()  # Clean up any OpenCV windows
+    
+    # Đảm bảo file hoàn tất trước khi tối ưu và upload  
+    import time
+    time.sleep(0.5)  # Wait for file to be completely written
     
     # Optimize video first
     optimized_file = optimize_video(temp_output_file)
     
     # Upload to host if requested
     if upload_to_host:
+        # Kiểm tra tính toàn vẹn của file trước khi upload
+        if not verify_video_file_integrity(optimized_file):
+            print(f"Fast video file integrity check failed: {optimized_file}")
+            return optimized_file  # Trả về local file nếu có vấn đề
+        
         from utils.upload import upload_video_to_host
         uploaded_url = upload_video_to_host(optimized_file, cleanup_after_upload=False)  # Không xóa file local
         if uploaded_url:
-            print(f"Fast video uploaded to: {uploaded_url}")
+            print(f"Fast video uploaded successfully: {uploaded_url}")
             return uploaded_url
         else:
             # Nếu upload thất bại, trả về đường dẫn local
-            print(f"Upload failed, using local file: {optimized_file}")
+            print(f"Fast video upload failed, using local file: {optimized_file}")
             return optimized_file
     else:
         # Trả về đường dẫn local file
         print(f"Local fast video created: {optimized_file}")
         return optimized_file
 
+def verify_video_file_integrity(video_file_path):
+    """
+    Kiểm tra tính toàn vẹn của file video trước khi upload
+    """
+    try:
+        import cv2
+        
+        if not os.path.exists(video_file_path):
+            return False
+        
+        # Kiểm tra kích thước file
+        if os.path.getsize(video_file_path) == 0:
+            return False
+        
+        # Thử mở video với OpenCV
+        cap = cv2.VideoCapture(video_file_path, cv2.CAP_FFMPEG)
+        if not cap.isOpened():
+            cap.release()
+            return False
+        
+        # Thử đọc vài frame đầu
+        frame_count = 0
+        for _ in range(5):  # Kiểm tra 5 frame đầu
+            ret, frame = cap.read()
+            if ret and frame is not None:
+                frame_count += 1
+            else:
+                break
+        
+        cap.release()
+        
+        # Video hợp lệ nếu có ít nhất 1 frame
+        return frame_count > 0
+        
+    except Exception as e:
+        print(f"Video integrity check failed: {e}")
+        return False
+
 def process_video_task(frame_type, video_files, background_path, overlay_path, total_width, total_height, duration=2, upload_to_host=True):
     try:
-        return create_video_output(frame_type, video_files, background_path, overlay_path, total_width, total_height, duration, upload_to_host)
+        from utils.logging import setup_logging
+        logger = setup_logging()
+        logger.info(f"Starting video processing task - duration: {duration}s, upload: {upload_to_host}")
+        
+        result = create_video_output(frame_type, video_files, background_path, overlay_path, total_width, total_height, duration, upload_to_host)
+        
+        if result:
+            logger.info(f"Video processing completed successfully: {result}")
+        else:
+            logger.error("Video processing returned None result")
+        
+        return result
     except Exception as e:
         from utils.logging import setup_logging
         logger = setup_logging()
@@ -481,7 +702,18 @@ def process_video_task(frame_type, video_files, background_path, overlay_path, t
 
 def process_fast_video_task(frame_type, video_files, background_path, overlay_path, total_width, total_height, original_duration=10, upload_to_host=True):
     try:
-        return create_fast_video_output(frame_type, video_files, background_path, overlay_path, total_width, total_height, original_duration, upload_to_host)
+        from utils.logging import setup_logging
+        logger = setup_logging()
+        logger.info(f"Starting fast video processing task - original duration: {original_duration}s, upload: {upload_to_host}")
+        
+        result = create_fast_video_output(frame_type, video_files, background_path, overlay_path, total_width, total_height, original_duration, upload_to_host)
+        
+        if result:
+            logger.info(f"Fast video processing completed successfully: {result}")
+        else:
+            logger.error("Fast video processing returned None result")
+            
+        return result
     except Exception as e:
         from utils.logging import setup_logging
         logger = setup_logging()

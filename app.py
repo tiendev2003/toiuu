@@ -1,5 +1,6 @@
 # app.py
 import datetime
+import sys
 import uuid
 from flask import Flask, jsonify, request, send_from_directory, render_template
 from flask_cors import CORS
@@ -25,9 +26,20 @@ from config import (
     get_frame_gap, get_frame_margin, get_print_margin, MAX_INPUT_IMAGE_SIZE,
     get_daily_folder, PRINT_SERVER_IP, PRINT_SERVER_PORT
 )
+def get_base_path():
+    # Khi đóng gói bằng PyInstaller, dùng _MEIPASS làm base path
+    if getattr(sys, 'frozen', False):
+        return sys._MEIPASS
+    return os.path.abspath(".")
 
+BASE_DIR = get_base_path()
+UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
+
+# Tạo thư mục nếu chưa tồn tại
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app = Flask(__name__, static_url_path='', static_folder='static')
 CORS(app)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 logger = setup_logging()
 
 @app.before_request
@@ -206,7 +218,7 @@ def process_image_task(frame_type, image_files, positions, photo_width, photo_he
         # Tự động gọi hàm in ngay sau khi tạo ảnh
         try:
             # Xác định máy in dựa vào frame type
-            printer_name = "DS-RX1-sCut" if frame_type.get("isCustom", False) else "DS-RX1"
+            printer_name = "DS-RX1-Cut" if frame_type.get("isCustom", False) else "DS-RX1"
             
             # Kiểm tra xem máy hiện tại có phải máy chủ in không
             if is_print_server():
@@ -518,44 +530,7 @@ def apply_filter():
         logger.error(f"[FILTER] Error: {str(e)}")
         return jsonify({"error": f"Filter application failed: {str(e)}"}), 500
 
-@app.route('/api/upload-local-video', methods=['POST'])
-def upload_local_video():
-    """Upload local video file to host"""
-    try:
-        filename = request.form.get('filename')
-        if not filename:
-            return jsonify({"error": "Missing filename parameter"}), 400
-        
-        # Tìm file trong daily folders
-        daily_output_folder = get_daily_folder(OUTPUT_FOLDER)
-        file_path = os.path.join(daily_output_folder, filename)
-        
-        if not os.path.exists(file_path):
-            # Tìm trong các folder khác
-            for folder in os.listdir(OUTPUT_FOLDER):
-                folder_path = os.path.join(OUTPUT_FOLDER, folder)
-                if os.path.isdir(folder_path):
-                    test_path = os.path.join(folder_path, filename)
-                    if os.path.exists(test_path):
-                        file_path = test_path
-                        break
-            else:
-                return jsonify({"error": "File not found"}), 404
-        
-        from utils.upload import upload_video_to_host
-        uploaded_url = upload_video_to_host(file_path, cleanup_after_upload=False)
-        
-        if uploaded_url:
-            return jsonify({
-                "success": True,
-                "uploaded_url": uploaded_url,
-                "local_file": f"/outputs/{filename}"
-            }), 200
-        else:
-            return jsonify({"error": "Upload failed"}), 500
-    except Exception as e:
-        logger.error(f"[LOCAL VIDEO UPLOAD] Error: {str(e)}")
-        return jsonify({"error": str(e)}), 500
+ 
 
 @app.route('/api/cleanup-local-video', methods=['POST'])
 def cleanup_local_video():
@@ -664,46 +639,62 @@ def get_printers():
 @app.route('/api/print', methods=['POST'])
 def print_image():
     """Gửi lệnh in ảnh tới máy in"""
+    saved_files = []
     try:
         # Lấy parameters từ request
-        image_filename = request.form.get('image_filename')
-        printer_name = request.form.get('printer_name')
+        image_filename = request.form.get('image_filename') 
+        printer_name = request.form.get("printer_name", "DS-RX1")
         copies = int(request.form.get('copies', 1))
         paper_size = request.form.get('paper_size', '4x6')
         
-        if not image_filename:
-            return jsonify({
-                "success": False,
-                "error": "missing_image",
-                "message": "Image filename is required"
-            }), 400
+        # Kiểm tra xem có file được upload không
+        uploaded_file = request.files.get('image_file')
         
+        if uploaded_file and uploaded_file.filename:
+            # Nếu có file upload, save file tạm thời để in
+            from utils.file_handling import save_file
+            temp_image_path = save_file(uploaded_file, UPLOAD_FOLDER, "temp_print_")
+            saved_files.append(temp_image_path)
+            image_path = temp_image_path
+            logger.info(f"Received uploaded file for printing: {uploaded_file.filename}")
+        else:
+            # Nếu không có file upload, tìm file local theo tên
+            if not image_filename:
+                image_filename = "photobooth_result.jpg" + f"?{uuid.uuid4()}"  # Thêm UUID để tránh cache
+
+            if not printer_name:
+                return jsonify({
+                    "success": False,
+                    "error": "missing_printer",
+                    "message": "Printer name is required"
+                }), 400
+            
+            # Tìm file ảnh trong daily folders
+            daily_output_folder = get_daily_folder(OUTPUT_FOLDER)
+            image_path = os.path.join(daily_output_folder, image_filename)
+            
+            if not os.path.exists(image_path):
+                # Tìm trong các folder khác
+                for folder in os.listdir(OUTPUT_FOLDER):
+                    folder_path = os.path.join(OUTPUT_FOLDER, folder)
+                    if os.path.isdir(folder_path):
+                        test_path = os.path.join(folder_path, image_filename)
+                        if os.path.exists(test_path):
+                            image_path = test_path
+                            break
+                else:
+                    return jsonify({
+                        "success": False,
+                        "error": "file_not_found",
+                        "message": f"Image file '{image_filename}' not found"
+                    }), 404
+
         if not printer_name:
             return jsonify({
                 "success": False,
-                "error": "missing_printer",
+                "error": "missing_printer", 
                 "message": "Printer name is required"
             }), 400
-        
-        # Tìm file ảnh trong daily folders
-        daily_output_folder = get_daily_folder(OUTPUT_FOLDER)
-        image_path = os.path.join(daily_output_folder, image_filename)
-        
-        if not os.path.exists(image_path):
-            # Tìm trong các folder khác
-            for folder in os.listdir(OUTPUT_FOLDER):
-                folder_path = os.path.join(OUTPUT_FOLDER, folder)
-                if os.path.isdir(folder_path):
-                    test_path = os.path.join(folder_path, image_filename)
-                    if os.path.exists(test_path):
-                        image_path = test_path
-                        break
-            else:
-                return jsonify({
-                    "success": False,
-                    "error": "file_not_found",
-                    "message": f"Image file '{image_filename}' not found"
-                }), 404
         
         # Kiểm tra xem máy hiện tại có phải máy chủ in không
         if is_print_server():
@@ -717,11 +708,16 @@ def print_image():
         
         if result["success"]:
             logger.info(f"Print job processed: {image_filename} to {printer_name} ({copies} copies)")
+            # Cleanup uploaded files
+            cleanup_files(saved_files)
             return jsonify(result), 200
         else:
+            # Cleanup uploaded files
+            cleanup_files(saved_files)
             return jsonify(result), 500
         
     except ValueError as e:
+        cleanup_files(saved_files)
         return jsonify({
             "success": False,
             "error": "invalid_copies",
@@ -729,6 +725,7 @@ def print_image():
         }), 400
     
     except Exception as e:
+        cleanup_files(saved_files)
         logger.error(f"[PRINT IMAGE] Error: {str(e)}")
         return jsonify({
             "success": False,

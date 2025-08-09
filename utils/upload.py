@@ -7,6 +7,34 @@ from typing import Optional
 UPLOAD_VIDEO_URL = "https://upload.dananggo.com/api.php?action=upload_video"
 UPLOAD_IMAGE_URL = "https://upload.dananggo.com/api.php?action=upload_image"
 
+def wait_for_file_completion(file_path: str, max_wait: int = 5) -> bool:
+    """
+    Wait for file to be completely written and available for reading
+    
+    Args:
+        file_path: Path to the file to check
+        max_wait: Maximum seconds to wait
+        
+    Returns:
+        True if file is ready, False if timeout
+    """
+    import time
+    
+    for _ in range(max_wait * 2):  # Check every 0.5 seconds
+        try:
+            # Try to open file exclusively to check if it's still being written
+            with open(file_path, 'rb') as f:
+                # Try to read a small chunk to ensure file is readable
+                f.read(1024)
+            # If we get here, file is complete and readable
+            return True
+        except (IOError, OSError):
+            # File is still being written or not accessible
+            time.sleep(0.5)
+            continue
+    
+    return False
+
 def cleanup_local_video_file(file_path: str) -> bool:
     """
     Clean up local video file
@@ -43,6 +71,12 @@ def upload_video_to_host(video_file_path: str, cleanup_after_upload: bool = True
         if not os.path.exists(video_file_path):
             raise FileNotFoundError(f"Video file not found: {video_file_path}")
         
+        # Wait for file to be completely written
+        if not wait_for_file_completion(video_file_path):
+            from utils.logging import setup_logging
+            logger = setup_logging()
+            logger.warning(f"File may not be completely written: {video_file_path}")
+        
         # Prepare form data
         with open(video_file_path, 'rb') as video_file:
             files = {'video': video_file}
@@ -58,25 +92,38 @@ def upload_video_to_host(video_file_path: str, cleanup_after_upload: bool = True
             
             # Parse response
             result = response.json() if response.headers.get('content-type', '').startswith('application/json') else response.text
-            # {'success': True, 'message': 'Upload video thành công', 'data': {'original_name': 'photobooth_result_f7a9c3ca-480b-4e3d-af69-e192981f234e.mp4', 'new_name': '688f8f0d88734_1754238733.mp4', 'size': '1.66 MB', 'type': 'video', 'url': 'videos/03_08_2025/688f8f0d88734_1754238733.mp4', 'upload_time': '2025-08-03 23:32:13', 'date_folder': '03_08_2025', 'applied_filter': 'none', 'quality': 85, 'enhancements': {'brightness': 100, 'contrast': 100, 'saturation': 100}}}
-            result = result.get('data', {}) if isinstance(result, dict) else {}
-            print(f"Upload response: {result.get('url', 'No URL found')}")
-            # Extract video URL from response
+            
+            from utils.logging import setup_logging
+            logger = setup_logging()
+            logger.info(f"Upload video response: {result}")
+            
+            # Handle new API response format: {'success': True, 'data': {'url': '...'}}
             if isinstance(result, dict):
-                # Assuming the API returns {"status": "success", "url": "video_url"}
-                if result.get('status') == 'success' and 'url' in result:
-                    return "https://upload.dananggo.com/"+result['url']
+                if result.get('success') and 'data' in result:
+                    # New format
+                    data = result['data']
+                    if 'url' in data:
+                        video_url = "https://upload.dananggo.com/" + data['url']
+                        logger.info(f"Video uploaded successfully: {video_url}")
+                        return video_url
+                elif result.get('status') == 'success' and 'url' in result:
+                    # Old format
+                    video_url = "https://upload.dananggo.com/" + result['url']
+                    logger.info(f"Video uploaded successfully (old format): {video_url}")
+                    return video_url
                 elif 'url' in result:
-                    return  "https://upload.dananggo.com/"+result['url']
+                    # Direct URL in result
+                    video_url = "https://upload.dananggo.com/" + result['url']
+                    logger.info(f"Video uploaded successfully (direct URL): {video_url}")
+                    return video_url
             elif isinstance(result, str):
                 # If response is just the URL as text
                 if result.startswith('http'):
+                    logger.info(f"Video uploaded successfully (URL string): {result}")
                     return result.strip()
             
             # Log response for debugging
-            from utils.logging import setup_logging
-            logger = setup_logging()
-            logger.warning(f"Unexpected upload response: {result}")
+            logger.error(f"Unexpected upload response format: {result}")
             return None
             
     except requests.exceptions.RequestException as e:

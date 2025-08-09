@@ -10,6 +10,7 @@ OUTPUT_FOLDER = os.path.join(BASE_DIR, 'outputs')
 OUTPUT_BASE_FOLDER = os.path.join(BASE_DIR, 'outputs')
 ALLOWED_EXTENSIONS = {'jpg', 'jpeg', 'png', 'mp4', 'webm'}
 
+
 HEIGHT_IMAGE = 3304     
 HEIGHT_IMAGE_CUSTOM = 1652  
 WIDTH_IMAGE = 4956       
@@ -79,7 +80,7 @@ URL_FRONTEND = "https://s.mayphotobooth.com"
 URL_PRINT = "http://localhost:5000/api/print"
 
 # Print server settings
-PRINT_SERVER_IP = "192.168.1.9"  # IP máy chủ in - thay đổi theo ip thực tế
+PRINT_SERVER_IP = "192.168.1.60"  # IP máy chủ in - thay đổi theo ip thực tế
 PRINT_SERVER_PORT = 5000
 PRINT_API_ENDPOINT = "/api/print"
 PRINT_LIST_ENDPOINT = "/api/printers"

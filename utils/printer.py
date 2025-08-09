@@ -18,6 +18,85 @@ _printer_cache = {
     'last_updated': 0
 }
 
+import win32print
+import win32ui
+from PIL import Image, ImageWin
+import os
+
+def print_image(image_path: str, printer_name: str = None):
+    """In ảnh với tên máy in cụ thể. Tự động xoay và canh giữa ảnh."""
+
+    if not os.path.exists(image_path):
+        print(f"❌ Không tìm thấy ảnh: {image_path}")
+        return False
+
+    try:
+        # Mở ảnh và lấy kích thước
+        img = Image.open(image_path)
+        img_width, img_height = img.size
+
+        print(f"🖼️ Ảnh: {image_path} ({img_width}x{img_height}px)")
+
+        # Nếu không có tên máy in, dùng mặc định
+        if not printer_name:
+            printer_name = win32print.GetDefaultPrinter()
+
+        print(f"🖨️ Máy in: {printer_name}")
+
+        # Tạo DC (Device Context)
+        hDC = win32ui.CreateDC()
+        hDC.CreatePrinterDC(printer_name)
+
+        # Kích thước giấy in thực tế
+        printable_width = hDC.GetDeviceCaps(8)   # HORZRES
+        printable_height = hDC.GetDeviceCaps(10) # VERTRES
+        print(f"📄 Vùng in: {printable_width}x{printable_height}px")
+
+        # --- Xoay ảnh nếu cần ---
+        img_is_portrait = img_height > img_width
+        paper_is_portrait = printable_height > printable_width
+        if img_is_portrait != paper_is_portrait:
+            print("🔄 Đang xoay ảnh 90 độ...")
+            img = img.rotate(90, expand=True)
+            img_width, img_height = img.size
+            print(f"🔁 Ảnh sau khi xoay: {img_width}x{img_height}px")
+
+        # --- Tính kích thước phù hợp để không bị méo ---
+        img_aspect = img_width / img_height
+        paper_aspect = printable_width / printable_height
+
+        if img_aspect > paper_aspect:
+            new_width = printable_width
+            new_height = int(new_width / img_aspect)
+        else:
+            new_height = printable_height
+            new_width = int(new_height * img_aspect)
+
+        # Căn giữa ảnh
+        x_offset = (printable_width - new_width) // 2
+        y_offset = (printable_height - new_height) // 2
+
+        print(f"📐 Kích thước in: {new_width}x{new_height}px | Căn giữa: ({x_offset}, {y_offset})")
+
+        # In
+        hDC.StartDoc(image_path)
+        hDC.StartPage()
+        dib = ImageWin.Dib(img)
+        draw_rect = (x_offset, y_offset, x_offset + new_width, y_offset + new_height)
+        dib.draw(hDC.GetHandleOutput(), draw_rect)
+        hDC.EndPage()
+        hDC.EndDoc()
+        hDC.DeleteDC()
+
+        print("✅ In thành công.")
+        return True
+
+    except Exception as e:
+        print(f"❌ Lỗi khi in ảnh: {e}")
+        return False
+
+
+
 def get_local_ip() -> str:
     """Lấy IP hiện tại của máy"""
     try:
@@ -207,28 +286,23 @@ def send_print_job_system(image_path: str, printer_name: str, copies: int = 1, p
     try:
         if system == "windows":
             # Sử dụng rundll32 để in trên Windows
-            cmd = ["rundll32", "shimgvw.dll,ImageView_PrintTo", f"/pt", image_path, printer_name]
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
-            
-            if result.returncode == 0:
-                job_id = f"win_print_{int(time.time())}"
-                logger.info(f"Windows rundll32 print job sent successfully")
+            result = print_image(image_path, printer_name)
+            if result:
                 return {
                     "success": True,
-                    "job_id": job_id,
-                    "message": "Print job sent via rundll32",
+                    "job_id": f"win_print_{int(time.time())}",
+                    "message": "Print job sent via Windows command",
                     "printer": printer_name,
-                    "copies": copies,
-                    "system_output": "Print command executed"
+                    "copies": copies
                 }
             else:
-                error_msg = result.stderr.strip() or "Unknown rundll32 print error"
-                logger.error(f"Windows rundll32 print failed: {error_msg}")
                 return {
                     "success": False,
-                    "error": "windows_rundll32_failed",
-                    "message": error_msg
+                    "error": "windows_print_failed",
+                    "message": "Failed to print image on Windows"
                 }
+            
+            
                 
         elif system in ["darwin", "linux"]:  # macOS và Linux
             # Sử dụng lp command
@@ -282,7 +356,7 @@ def send_print_job_system(image_path: str, printer_name: str, copies: int = 1, p
             "message": f"Unexpected error: {e}"
         }
 
-def send_print_job_to_server(image_path: str, printer_name: str, copies: int = 1, paper_size: str = "4x6") -> Dict[str, Any]:
+def send_print_job_to_server(image_path: str, printer_name: str="DS-RX1", copies: int = 1, paper_size: str = "4x6") -> Dict[str, Any]:
     """
     Gửi lệnh in đến máy chủ in qua API (gửi file thay vì URL)
     Args:
@@ -294,27 +368,32 @@ def send_print_job_to_server(image_path: str, printer_name: str, copies: int = 1
         Dict chứa kết quả in
     """
     try:
-        # Đọc file ảnh và encode base64
-        with open(image_path, 'rb') as image_file:
-            image_data = base64.b64encode(image_file.read()).decode('utf-8')
-        
-        # Chuẩn bị payload
-        print_payload = {
-            "printer_name": printer_name,
-            "image_data": image_data,
-            "copies": copies,
-            "paper_size": paper_size,
-            "color_mode": "color",
-            "quality": "high"
+        import os
+        image_filename = os.path.basename(image_path)
+        # Kiểm tra file tồn tại trước khi gửi
+        if not os.path.exists(image_path):
+            error_msg = f"Image file not found: {image_path}"
+            logger.error(error_msg)
+            return {
+                "success": False,
+                "error": "file_not_found",
+                "message": error_msg
+            }
+        # Luôn gửi file thực tế qua API
+        form_data = {
+            "printer_name": printer_name if printer_name else "DS-RX1",
+            "copies": str(copies),
+            "paper_size": paper_size
         }
-        
-        # Gửi lệnh in qua API đến máy chủ in
-        response = requests.post(
-            f"http://{PRINT_SERVER_IP}:{PRINT_SERVER_PORT}{PRINT_API_ENDPOINT}",
-            json=print_payload,
-            timeout=30
-        )
-        
+        with open(image_path, 'rb') as image_file:
+            files = {'image_file': (image_filename, image_file, 'image/jpeg')}
+            logger.info(f"Sending print request to server with file: {image_filename}, printer: {printer_name}")
+            response = requests.post(
+                f"http://{PRINT_SERVER_IP}:{PRINT_SERVER_PORT}{PRINT_API_ENDPOINT}",
+                data=form_data,
+                files=files,
+                timeout=30
+            )
         if response.status_code == 200:
             result = response.json()
             logger.info(f"Print job sent to server successfully: {result}")
@@ -334,16 +413,6 @@ def send_print_job_to_server(image_path: str, printer_name: str, copies: int = 1
                 "error": "print_server_api_failed",
                 "message": error_msg
             }
-    
-    except FileNotFoundError:
-        error_msg = f"Image file not found: {image_path}"
-        logger.error(error_msg)
-        return {
-            "success": False,
-            "error": "file_not_found",
-            "message": error_msg
-        }
-    
     except requests.exceptions.RequestException as e:
         error_msg = f"Network error sending print job to server: {str(e)}"
         logger.error(error_msg)
@@ -352,7 +421,6 @@ def send_print_job_to_server(image_path: str, printer_name: str, copies: int = 1
             "error": "network_error",
             "message": error_msg
         }
-    
     except Exception as e:
         error_msg = f"Unexpected error sending print job to server: {str(e)}"
         logger.error(error_msg)

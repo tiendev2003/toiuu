@@ -5,20 +5,52 @@ Module xử lý đặc biệt cho WebM files từ browser
 import os
 import subprocess
 import shutil
+import sys
 from utils.logging import setup_logging
+from utils.ffmpeg_utils import get_ffmpeg_command, get_ffprobe_command, check_ffmpeg_availability, check_ffprobe_availability
 
 logger = setup_logging()
+
+def get_ffmpeg_path():
+    """Deprecated: Use ffmpeg_utils.get_ffmpeg_command() instead"""
+    try:
+        return get_ffmpeg_command()
+    except FileNotFoundError:
+        if getattr(sys, 'frozen', False):  # Running from .exe
+            return os.path.join(sys._MEIPASS, 'ffmpeg.exe')
+        else:
+            # Tìm trong thư mục utils
+            local_ffmpeg = os.path.join(os.path.dirname(__file__), '..', 'ffmpeg.exe')
+            if os.path.exists(local_ffmpeg):
+                return local_ffmpeg
+            return 'ffmpeg'  # Fallback to system PATH
+
+def get_ffprobe_path():
+    """Deprecated: Use ffmpeg_utils.get_ffprobe_command() instead"""
+    try:
+        return get_ffprobe_command()
+    except FileNotFoundError:
+        if getattr(sys, 'frozen', False):  # Running from .exe
+            return os.path.join(sys._MEIPASS, 'ffprobe.exe')
+        else:
+            # Tìm trong thư mục utils
+            local_ffprobe = os.path.join(os.path.dirname(__file__), '..', 'ffprobe.exe')
+            if os.path.exists(local_ffprobe):
+                return local_ffprobe
+            return 'ffprobe'  # Fallback to system PATH
 
 def detect_webm_codec(webm_file):
     """
     Phát hiện codec của file WebM để xử lý tương thích
     """
-    if not shutil.which('ffprobe'):
+    if not check_ffprobe_availability():
         return None
     
     try:
+        ffprobe_cmd = get_ffprobe_command()
+        
         cmd = [
-            'ffprobe', '-v', 'quiet', '-print_format', 'json',
+            ffprobe_cmd, '-v', 'quiet', '-print_format', 'json',
             '-show_streams', webm_file
         ]
         result = subprocess.run(cmd, capture_output=True, text=True, check=True)
@@ -44,7 +76,7 @@ def optimize_webm_for_opencv(input_file, output_file=None):
     """
     Tối ưu hóa WebM file để tương thích tốt nhất với OpenCV
     """
-    if not shutil.which('ffmpeg'):
+    if not check_ffmpeg_availability():
         logger.warning("FFmpeg not available for WebM optimization")
         return input_file
     
@@ -58,8 +90,9 @@ def optimize_webm_for_opencv(input_file, output_file=None):
         webm_info = detect_webm_codec(input_file)
         
         # Command tối ưu dựa trên codec phát hiện
+        ffmpeg_cmd = get_ffmpeg_command()
         cmd = [
-            'ffmpeg', '-y', '-i', input_file,
+            ffmpeg_cmd, '-y', '-i', input_file,
             '-c:v', 'libx264',  # Force H.264 cho OpenCV
             '-preset', 'fast',
             '-crf', '25',
