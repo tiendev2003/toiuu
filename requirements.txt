@@ -11,7 +11,3 @@ torch==2.7.1
 torchvision==0.22.1
 scikit-image==0.25.2
 qrcode==7.4.2
-ffmpeg-python==0.2.0
-imageio==2.25.0
-imageio-ffmpeg==0.4.10
-pywin32==305
