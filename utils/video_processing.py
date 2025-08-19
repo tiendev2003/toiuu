@@ -244,36 +244,8 @@ def get_video_info(video_path):
  
 def optimize_video(video_file):
     """Tối ưu hóa video với FFmpeg hoặc basic optimization nếu không có FFmpeg"""
-    # Sử dụng video_standardizer để chuẩn hóa dạng h264+aac
-    from utils.video_standardizer import standardize_video
     
     try:
-        print(f"Chuẩn hóa video h264+aac: {video_file}")
-        standardized_file = standardize_video(
-            video_file, 
-            crf=23,            # Chất lượng tốt
-            preset="fast"      # Tốc độ xử lý nhanh
-        )
-        
-        if standardized_file != video_file:
-            print(f"Video đã được chuẩn hóa thành công: {standardized_file}")
-            
-            # Kiểm tra video sau chuẩn hóa có hợp lệ không
-            if verify_video_file_integrity(standardized_file):
-                # Thay thế file gốc bằng file đã chuẩn hóa
-                try:
-                    os.replace(standardized_file, video_file)
-                    print(f"Thay thế file gốc bằng file chuẩn hóa: {video_file}")
-                except OSError as e:
-                    print(f"Không thể thay thế file gốc: {e}")
-                    # Trả về file chuẩn hóa nếu không thể thay thế
-                    return standardized_file
-            else:
-                print(f"File video chuẩn hóa không hợp lệ, sử dụng file gốc")
-                if os.path.exists(standardized_file):
-                    os.remove(standardized_file)
-                # Fallback sử dụng basic optimization
-                return basic_video_optimization(video_file)
         
         return video_file
         
@@ -465,9 +437,7 @@ def create_video_output(frame_type, video_files, background_path, overlay_path, 
     import time
     time.sleep(0.5)  # Wait for file to be completely written
     
-    # Chuẩn hóa video thành h264+aac
-    from utils.video_standardizer import standardize_video
-    optimized_file = standardize_video(temp_output_file, crf=23, preset="fast")
+    optimized_file = temp_output_file
     
     # Upload to host if requested
     if upload_to_host:
@@ -477,7 +447,7 @@ def create_video_output(frame_type, video_files, background_path, overlay_path, 
             return optimized_file  # Trả về local file nếu có vấn đề
         
         from utils.upload import upload_video_to_host
-        uploaded_url = upload_video_to_host(optimized_file, cleanup_after_upload=False)  # Không xóa file local
+        uploaded_url = upload_video_to_host(optimized_file, cleanup_after_upload=True)  # Không xóa file local
         if uploaded_url:
             print(f"Video uploaded successfully: {uploaded_url}")
             return uploaded_url
@@ -602,9 +572,7 @@ def create_fast_video_output(frame_type, video_files, background_path, overlay_p
     import time
     time.sleep(0.5)  # Wait for file to be completely written
     
-    # Chuẩn hóa video thành h264+aac
-    from utils.video_standardizer import standardize_video
-    optimized_file = standardize_video(temp_output_file, crf=23, preset="fast")
+    optimized_file = temp_output_file
     
     # Upload to host if requested
     if upload_to_host:
@@ -614,7 +582,7 @@ def create_fast_video_output(frame_type, video_files, background_path, overlay_p
             return optimized_file  # Trả về local file nếu có vấn đề
         
         from utils.upload import upload_video_to_host
-        uploaded_url = upload_video_to_host(optimized_file, cleanup_after_upload=False)  # Không xóa file local
+        uploaded_url = upload_video_to_host(optimized_file, cleanup_after_upload=True)  # Không xóa file local
         if uploaded_url:
             print(f"Fast video uploaded successfully: {uploaded_url}")
             return uploaded_url

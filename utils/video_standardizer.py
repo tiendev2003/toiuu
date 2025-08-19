@@ -63,7 +63,13 @@ def standardize_video(input_file, output_file=None, crf=23, preset="fast"):
         # Kiểm tra file output
         if os.path.exists(output_file) and os.path.getsize(output_file) > 0:
             logger.info(f"Chuẩn hóa video thành công: {output_file}")
-            
+            # Xóa file video gốc nếu khác với output và không phải file gốc từ user
+            if input_file != output_file and ("webm_" in os.path.basename(input_file) or "temp_" in os.path.basename(input_file) or "_opencv" in os.path.basename(input_file)):
+                try:
+                    os.remove(input_file)
+                    logger.info(f"Đã xóa file tạm: {input_file}")
+                except Exception as e:
+                    logger.warning(f"Không thể xóa file tạm {input_file}: {e}")
             # Đảm bảo video output ổn định
             time.sleep(0.5)  # Đợi hệ thống file cập nhật
             return output_file

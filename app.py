@@ -298,6 +298,7 @@ def convert_video():
     Endpoint để convert video WebM từ client sang MP4 trước khi xử lý chính
     """
     saved_files = []
+    all_temp_files = []  # Track all temporary files for cleanup
     try:
         files = request.files.getlist('files')
         if not files:
@@ -310,42 +311,54 @@ def convert_video():
                 # Save file tạm thời
                 temp_path = save_file(file, UPLOAD_FOLDER, "temp_")
                 saved_files.append(temp_path)
+                all_temp_files.append(temp_path)
                 
                 # Convert nếu là WebM
                 from utils.video_processing import convert_webm_to_mp4
                 converted_path = convert_webm_to_mp4(temp_path)
                 
+                # Track converted file if different from original
+                if converted_path != temp_path:
+                    all_temp_files.append(converted_path)
+                
                 # Chuẩn hóa video về h264+aac
                 from utils.video_standardizer import standardize_video
-                converted_path = standardize_video(converted_path, crf=23, preset="fast")
+                standardized_path = standardize_video(converted_path, crf=23, preset="fast")
                 
-                if converted_path != temp_path:
-                    saved_files.append(converted_path)
+                # Track standardized file if different from converted
+                if standardized_path != converted_path:
+                    all_temp_files.append(standardized_path)
                 
                 # Tạo response với info video
                 file_info = {
                     "original_name": file.filename,
-                    "converted_path": os.path.basename(converted_path),
-                    "size": os.path.getsize(converted_path),
-                    "format": "mp4" if converted_path.endswith('.mp4') else os.path.splitext(converted_path)[1][1:]
+                    "converted_path": os.path.basename(standardized_path),
+                    "size": os.path.getsize(standardized_path),
+                    "format": "mp4" if standardized_path.endswith('.mp4') else os.path.splitext(standardized_path)[1][1:]
                 }
                 
                 converted_results.append(file_info)
         
-        return jsonify({
+        response = jsonify({
             "success": True,
             "converted_files": converted_results,
             "message": f"Converted {len(converted_results)} files successfully"
-        }), 200
+        })
+        
+        # Clean up all temporary files after response is prepared
+        cleanup_files(all_temp_files)
+        
+        return response, 200
         
     except Exception as e:
-        cleanup_files(saved_files)
+        cleanup_files(all_temp_files)
         logger.error(f"[VIDEO CONVERT API] Error: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/process-video', methods=['POST'])
 def process_video():
     saved_files = []  # Initialize saved_files to avoid UnboundLocalError
+    all_temp_files = []  # Track all temporary files for cleanup
     try:
         frame_type_choice = request.form.get('frame_type')
         if not frame_type_choice:
@@ -369,21 +382,31 @@ def process_video():
             cleanup_files(saved_files)
             return jsonify({"error": "No valid video files"}), 400
         
+        # Add initial saved files to temp files list
+        all_temp_files.extend(saved_files)
+        
         # Convert WebM files to MP4 for better compatibility
         from utils.video_processing import convert_webm_to_mp4
         converted_files = []
         for video_file in video_files:
             converted_file = convert_webm_to_mp4(video_file)
-            if converted_file:
+            if converted_file and converted_file != video_file:
                 converted_files.append(converted_file)
-                saved_files.append(converted_file)
+                all_temp_files.append(converted_file)  # Track converted files
             else:
                 converted_files.append(video_file)  # Keep original if conversion fails
         video_files = converted_files
         
         # Chuẩn hóa tất cả video về h264+aac
         from utils.video_standardizer import standardize_videos_in_batch
-        video_files = standardize_videos_in_batch(video_files, preset="fast", crf=23)
+        standardized_files = standardize_videos_in_batch(video_files, preset="fast", crf=23)
+        
+        # Track standardized files that are different from input
+        for original, standardized in zip(video_files, standardized_files):
+            if standardized != original:
+                all_temp_files.append(standardized)
+        
+        video_files = standardized_files
         
         margin = get_frame_margin(frame_type_choice)
         gap = get_frame_gap(frame_type_choice)
@@ -411,7 +434,7 @@ def process_video():
                         response_data[task_type] = f"/outputs/{os.path.basename(result)}"
         
         if not response_data:
-            cleanup_files(saved_files)
+            cleanup_files(all_temp_files)
             return jsonify({"error": "Video processing failed"}), 500
         
         if media_session_code:
@@ -435,10 +458,11 @@ def process_video():
             
             update_media_session(media_session_code, video_url=video_url, fast_video_url=fast_video_url)
         
-        cleanup_files(saved_files)
+        # Clean up all temporary files
+        cleanup_files(all_temp_files)
         return jsonify(response_data), 200
     except Exception as e:
-        cleanup_files(saved_files)
+        cleanup_files(all_temp_files)
         logger.error(f"[VIDEO PROCESSING] Error: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
@@ -592,4 +616,4 @@ def index():
 if __name__ == '__main__':
     logger.info("Starting Flask application")
     # Tắt debug mode để tránh multiple processes và threading issues
-    app.run(debug=False, host='0.0.0.0', port=8000, threaded=True, use_reloader=False)
+    app.run(debug=True, host='0.0.0.0', port=8000, threaded=True, use_reloader=False)

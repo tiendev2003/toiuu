@@ -115,6 +115,13 @@ def optimize_webm_for_opencv(input_file, output_file=None):
         
         if os.path.exists(output_file) and os.path.getsize(output_file) > 0:
             logger.info(f"WebM optimization successful: {output_file}")
+            # Xóa file WebM gốc nếu tối ưu thành công và là file tạm
+            if input_file != output_file and "webm_" in os.path.basename(input_file):
+                try:
+                    os.remove(input_file)
+                    logger.info(f"Đã xóa file WebM gốc: {input_file}")
+                except Exception as e:
+                    logger.warning(f"Không thể xóa file WebM gốc {input_file}: {e}")
             return output_file
         else:
             logger.warning("WebM optimization failed - output file empty")
