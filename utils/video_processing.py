@@ -477,9 +477,12 @@ def create_video_output(frame_type, video_files, background_path, overlay_path, 
             return optimized_file  # Trả về local file nếu có vấn đề
         
         from utils.upload import upload_video_to_host
-        uploaded_url = upload_video_to_host(optimized_file, cleanup_after_upload=False)  # Không xóa file local
+        uploaded_url = upload_video_to_host(optimized_file, cleanup_after_upload=True)  # Xóa file local sau khi upload
         if uploaded_url:
             print(f"Video uploaded successfully: {uploaded_url}")
+            # Đảm bảo xóa file gốc và các file trung gian
+            if os.path.exists(temp_output_file) and temp_output_file != optimized_file:
+                os.remove(temp_output_file)
             return uploaded_url
         else:
             # Nếu upload thất bại, trả về đường dẫn local
@@ -614,9 +617,12 @@ def create_fast_video_output(frame_type, video_files, background_path, overlay_p
             return optimized_file  # Trả về local file nếu có vấn đề
         
         from utils.upload import upload_video_to_host
-        uploaded_url = upload_video_to_host(optimized_file, cleanup_after_upload=False)  # Không xóa file local
+        uploaded_url = upload_video_to_host(optimized_file, cleanup_after_upload=True)  # Xóa file local sau khi upload
         if uploaded_url:
             print(f"Fast video uploaded successfully: {uploaded_url}")
+            # Đảm bảo xóa file gốc và các file trung gian
+            if os.path.exists(temp_output_file) and temp_output_file != optimized_file:
+                os.remove(temp_output_file)
             return uploaded_url
         else:
             # Nếu upload thất bại, trả về đường dẫn local

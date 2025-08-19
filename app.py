@@ -4,7 +4,7 @@ import sys
 import uuid
 from flask import Flask, jsonify, request, send_from_directory, render_template
 from flask_cors import CORS
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, TimeoutError
 import time
 import os
 import requests
@@ -369,6 +369,7 @@ def process_video():
             cleanup_files(saved_files)
             return jsonify({"error": "No valid video files"}), 400
         
+        logger.info(f"[VIDEO PROCESSING] Processing {len(video_files)} video files with frame type: {frame_type_choice}")
         # Convert WebM files to MP4 for better compatibility
         from utils.video_processing import convert_webm_to_mp4
         converted_files = []
@@ -401,14 +402,22 @@ def process_video():
                 )))
             
             for task_type, future in tasks:
-                result = future.result(timeout=PROCESSING_TIMEOUT)
-                if result:
-                    # Nếu result là URL (bắt đầu với http), sử dụng trực tiếp
-                    # Nếu là file path, tạo URL local
-                    if result.startswith('http'):
-                        response_data[task_type] = result
-                    else:
-                        response_data[task_type] = f"/outputs/{os.path.basename(result)}"
+                try:
+                    result = future.result(timeout=PROCESSING_TIMEOUT)
+                    if result:
+                        # Nếu result là URL (bắt đầu với http), sử dụng trực tiếp
+                        # Nếu là file path, tạo URL local
+                        if result.startswith('http'):
+                            response_data[task_type] = result
+                        else:
+                            response_data[task_type] = f"/outputs/{os.path.basename(result)}"
+                except TimeoutError:
+                    logger.error(f"[VIDEO PROCESSING] Timeout error for {task_type} after {PROCESSING_TIMEOUT} seconds")
+                    # Continue with other tasks instead of failing completely
+                    continue
+                except Exception as e:
+                    logger.error(f"[VIDEO PROCESSING] Task error for {task_type}: {str(e)}")
+                    continue
         
         if not response_data:
             cleanup_files(saved_files)

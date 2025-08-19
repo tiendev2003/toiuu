@@ -82,10 +82,11 @@ def upload_video_to_host(video_file_path: str, cleanup_after_upload: bool = True
             files = {'video': video_file}
             
             # Make upload request
+            from config import UPLOAD_TIMEOUT
             response = requests.post(
                 UPLOAD_VIDEO_URL,
                 files=files,
-                timeout=120  # 2 minutes timeout
+                timeout=UPLOAD_TIMEOUT or 120  # Use config value or default to 2 minutes
             )
             
             response.raise_for_status()  # Raise exception for bad status codes
@@ -126,6 +127,11 @@ def upload_video_to_host(video_file_path: str, cleanup_after_upload: bool = True
             logger.error(f"Unexpected upload response format: {result}")
             return None
             
+    except requests.exceptions.Timeout:
+        from utils.logging import setup_logging
+        logger = setup_logging()
+        logger.error(f"Upload request timed out for file: {video_file_path}")
+        return None
     except requests.exceptions.RequestException as e:
         from utils.logging import setup_logging
         logger = setup_logging()
@@ -142,6 +148,22 @@ def upload_video_to_host(video_file_path: str, cleanup_after_upload: bool = True
             try:
                 if os.path.exists(video_file_path):
                     os.remove(video_file_path)
+                    logger.info(f"Deleted local video file after upload: {video_file_path}")
+                    
+                    # Also try to clean up any other temporary files with similar names
+                    base_dir = os.path.dirname(video_file_path)
+                    base_name = os.path.basename(video_file_path)
+                    name_part = os.path.splitext(base_name)[0]
+                    
+                    # Look for files with similar names (temp files, etc.)
+                    for file in os.listdir(base_dir):
+                        if file.startswith(name_part) and file != base_name:
+                            try:
+                                os.remove(os.path.join(base_dir, file))
+                                logger.info(f"Deleted related temporary file: {file}")
+                            except Exception:
+                                pass
+                                
             except Exception as e:
                 from utils.logging import setup_logging
                 logger = setup_logging()
@@ -162,34 +184,45 @@ def upload_image_to_host(image_file_path: str, cleanup_after_upload: bool = Fals
         if not os.path.exists(image_file_path):
             raise FileNotFoundError(f"Image file not found: {image_file_path}")
         
+        # Wait briefly for file to be completely written
+        if not wait_for_file_completion(image_file_path, max_wait=3):
+            from utils.logging import setup_logging
+            logger = setup_logging()
+            logger.warning(f"Image file may not be completely written: {image_file_path}")
+        
         # Prepare form data
         with open(image_file_path, 'rb') as image_file:
             files = {'image': image_file}
             
             # Make upload request
+            from config import UPLOAD_TIMEOUT
             response = requests.post(
                 UPLOAD_IMAGE_URL,
                 files=files,
-                timeout=60  # 1 minute timeout for images
+                timeout=UPLOAD_TIMEOUT or 60  # Use config value or default to 1 minute
             )
             
             response.raise_for_status()  # Raise exception for bad status codes
             
             # Parse response
             result = response.json() if response.headers.get('content-type', '').startswith('application/json') else response.text
-            # Expecting similar format as video upload
-            result = result.get('data', {}) if isinstance(result, dict) else {}
             
             from utils.logging import setup_logging
             logger = setup_logging()
-            logger.info(f"Image upload response: {result.get('url', 'No URL found')}")
+            logger.info(f"Image upload response: {result}")
             
             # Extract image URL from response
             if isinstance(result, dict):
-                if result.get('status') == 'success' and 'url' in result:
-                    return "https://upload.dananggo.com/"+result['url']
+                data = result.get('data', result)
+                if isinstance(data, dict):
+                    if 'url' in data:
+                        image_url = "https://upload.dananggo.com/" + data['url']
+                        logger.info(f"Image uploaded successfully: {image_url}")
+                        return image_url
+                elif result.get('status') == 'success' and 'url' in result:
+                    return "https://upload.dananggo.com/" + result['url']
                 elif 'url' in result:
-                    return "https://upload.dananggo.com/"+result['url']
+                    return "https://upload.dananggo.com/" + result['url']
             elif isinstance(result, str):
                 # If response is just the URL as text
                 if result.startswith('http'):
@@ -199,6 +232,11 @@ def upload_image_to_host(image_file_path: str, cleanup_after_upload: bool = Fals
             logger.warning(f"Unexpected image upload response: {result}")
             return None
             
+    except requests.exceptions.Timeout:
+        from utils.logging import setup_logging
+        logger = setup_logging()
+        logger.error(f"Image upload request timed out for file: {image_file_path}")
+        return None
     except requests.exceptions.RequestException as e:
         from utils.logging import setup_logging
         logger = setup_logging()
@@ -215,6 +253,7 @@ def upload_image_to_host(image_file_path: str, cleanup_after_upload: bool = Fals
             try:
                 if os.path.exists(image_file_path):
                     os.remove(image_file_path)
+                    logger.info(f"Deleted local image file after upload: {image_file_path}")
             except Exception as e:
                 from utils.logging import setup_logging
                 logger = setup_logging()
