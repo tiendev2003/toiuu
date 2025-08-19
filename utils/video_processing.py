@@ -36,11 +36,11 @@ def get_ffprobe_path():
 
 def create_video_writer(output_file, fps, width, height):
     """
-    Tạo VideoWriter với fallback codec để tránh lỗi OpenH264
-    Ưu tiên codec có độ tương thích cao nhất với web browsers
+    Tạo VideoWriter với codec h264 (avc1) cho OpenCV
     """
-    # Danh sách codec theo thứ tự ưu tiên cho web compatibility tốt nhất
-    codecs = ['mp4v', 'avc1', 'H264', 'XVID', 'MJPG', 'MP4V']
+    # Ưu tiên codec h264 (avc1) cho web compatibility tốt nhất
+    # Chú ý: OpenCV chỉ tạo container, chuẩn hóa codec sẽ được thực hiện với ffmpeg sau
+    codecs = ['avc1', 'h264', 'H264', 'mp4v', 'XVID', 'MJPG']
     
     for codec in codecs:
         try:
@@ -196,13 +196,23 @@ def process_video_frame(frame, media, pos, size, is_circle, frame_type=None):
 def convert_webm_to_mp4(input_file):
     """
     Chuyển đổi file WebM sang MP4 để tăng tương thích với OpenCV
+    và chuẩn hóa về định dạng h264+aac
     """
     if not input_file.lower().endswith('.webm'):
-        return input_file  # Không cần convert nếu không phải WebM
+        # Nếu không phải WebM, vẫn chuẩn hóa về h264+aac
+        from utils.video_standardizer import standardize_video
+        return standardize_video(input_file)
     
-    # Sử dụng WebM handler chuyên dụng
+    # Sử dụng WebM handler chuyên dụng trước
     from utils.webm_handler import prepare_webm_for_processing
-    return prepare_webm_for_processing(input_file)
+    converted_file = prepare_webm_for_processing(input_file)
+    
+    # Sau đó chuẩn hóa thành h264+aac
+    if converted_file != input_file:
+        from utils.video_standardizer import standardize_video
+        return standardize_video(converted_file)
+    
+    return converted_file
 
 def get_video_info(video_path):
     """Lấy thông tin video bằng ffprobe"""
@@ -234,68 +244,41 @@ def get_video_info(video_path):
  
 def optimize_video(video_file):
     """Tối ưu hóa video với FFmpeg hoặc basic optimization nếu không có FFmpeg"""
-    if not check_ffmpeg_availability():
-        print(f"FFmpeg not available, applying basic optimization: {video_file}")
-        return basic_video_optimization(video_file)
-    
-    file_dir = os.path.dirname(video_file)
-    file_name = os.path.basename(video_file)
-    optimized_file = os.path.join(file_dir, f"optimized_{file_name}")
+    # Sử dụng video_standardizer để chuẩn hóa dạng h264+aac
+    from utils.video_standardizer import standardize_video
     
     try:
-        # Kiểm tra thông tin video trước khi optimize
-        video_info = get_video_info(video_file)
-        if not video_info:
-            print(f"Cannot get video info, applying basic optimization: {video_file}")
-            return basic_video_optimization(video_file)
+        print(f"Chuẩn hóa video h264+aac: {video_file}")
+        standardized_file = standardize_video(
+            video_file, 
+            crf=23,            # Chất lượng tốt
+            preset="fast"      # Tốc độ xử lý nhanh
+        )
         
-        # Sử dụng ffmpeg path thực tế
-        ffmpeg_cmd = get_ffmpeg_command()
-        
-        print(f"Optimizing video with FFmpeg: {video_file}")
-        cmd = [
-            ffmpeg_cmd, '-y', '-i', video_file,
-            '-c:v', 'libx264',  # Ensure H.264 codec
-            '-preset', 'fast',   # Fast encoding
-            '-crf', '23',        # Good quality
-            '-movflags', '+faststart',  # Web optimization - VERY IMPORTANT
-            '-pix_fmt', 'yuv420p',  # Compatibility with all browsers
-            '-profile:v', 'baseline',  # Maximum compatibility
-            '-level', '3.0',     # Wide device support
-            optimized_file
-        ]
-        
-        result = subprocess.run(cmd, check=True, capture_output=True, text=True)
-        
-        if os.path.exists(optimized_file) and os.path.getsize(optimized_file) > 0:
-            print(f"Video optimization successful: {optimized_file}")
+        if standardized_file != video_file:
+            print(f"Video đã được chuẩn hóa thành công: {standardized_file}")
             
-            # Kiểm tra video sau optimize có hợp lệ không
-            if verify_video_file_integrity(optimized_file):
-                # Thay thế file gốc bằng file đã optimize
+            # Kiểm tra video sau chuẩn hóa có hợp lệ không
+            if verify_video_file_integrity(standardized_file):
+                # Thay thế file gốc bằng file đã chuẩn hóa
                 try:
-                    os.replace(optimized_file, video_file)
-                    print(f"Replaced original with optimized: {video_file}")
+                    os.replace(standardized_file, video_file)
+                    print(f"Thay thế file gốc bằng file chuẩn hóa: {video_file}")
                 except OSError as e:
-                    print(f"Failed to replace original file: {e}")
-                    # Trả về file optimized nếu không thể thay thế
-                    return optimized_file
+                    print(f"Không thể thay thế file gốc: {e}")
+                    # Trả về file chuẩn hóa nếu không thể thay thế
+                    return standardized_file
             else:
-                print(f"Optimized video failed integrity check, using original")
-                if os.path.exists(optimized_file):
-                    os.remove(optimized_file)
+                print(f"File video chuẩn hóa không hợp lệ, sử dụng file gốc")
+                if os.path.exists(standardized_file):
+                    os.remove(standardized_file)
+                # Fallback sử dụng basic optimization
+                return basic_video_optimization(video_file)
         
         return video_file
         
-    except subprocess.CalledProcessError as e:
-        print(f"FFmpeg optimization failed: {e.stderr}")
-        if os.path.exists(optimized_file):
-            os.remove(optimized_file)
-        return basic_video_optimization(video_file)
     except Exception as e:
-        print(f"Video optimization error: {str(e)}")
-        if os.path.exists(optimized_file):
-            os.remove(optimized_file)
+        print(f"Lỗi khi chuẩn hóa video: {str(e)}")
         return basic_video_optimization(video_file)
 
 def basic_video_optimization(video_file):
@@ -482,8 +465,9 @@ def create_video_output(frame_type, video_files, background_path, overlay_path, 
     import time
     time.sleep(0.5)  # Wait for file to be completely written
     
-    # Optimize video first
-    optimized_file = optimize_video(temp_output_file)
+    # Chuẩn hóa video thành h264+aac
+    from utils.video_standardizer import standardize_video
+    optimized_file = standardize_video(temp_output_file, crf=23, preset="fast")
     
     # Upload to host if requested
     if upload_to_host:
@@ -618,8 +602,9 @@ def create_fast_video_output(frame_type, video_files, background_path, overlay_p
     import time
     time.sleep(0.5)  # Wait for file to be completely written
     
-    # Optimize video first
-    optimized_file = optimize_video(temp_output_file)
+    # Chuẩn hóa video thành h264+aac
+    from utils.video_standardizer import standardize_video
+    optimized_file = standardize_video(temp_output_file, crf=23, preset="fast")
     
     # Upload to host if requested
     if upload_to_host:

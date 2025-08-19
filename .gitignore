@@ -2,3 +2,4 @@
 utils/__pycache__
 venv/
 venv
+/utils/__pycache__/

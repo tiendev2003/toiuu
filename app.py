@@ -315,6 +315,10 @@ def convert_video():
                 from utils.video_processing import convert_webm_to_mp4
                 converted_path = convert_webm_to_mp4(temp_path)
                 
+                # Chuẩn hóa video về h264+aac
+                from utils.video_standardizer import standardize_video
+                converted_path = standardize_video(converted_path, crf=23, preset="fast")
+                
                 if converted_path != temp_path:
                     saved_files.append(converted_path)
                 
@@ -376,6 +380,10 @@ def process_video():
             else:
                 converted_files.append(video_file)  # Keep original if conversion fails
         video_files = converted_files
+        
+        # Chuẩn hóa tất cả video về h264+aac
+        from utils.video_standardizer import standardize_videos_in_batch
+        video_files = standardize_videos_in_batch(video_files, preset="fast", crf=23)
         
         margin = get_frame_margin(frame_type_choice)
         gap = get_frame_gap(frame_type_choice)
@@ -584,4 +592,4 @@ def index():
 if __name__ == '__main__':
     logger.info("Starting Flask application")
     # Tắt debug mode để tránh multiple processes và threading issues
-    app.run(debug=False, host='0.0.0.0', port=5000, threaded=True, use_reloader=False)
+    app.run(debug=False, host='0.0.0.0', port=8000, threaded=True, use_reloader=False)
