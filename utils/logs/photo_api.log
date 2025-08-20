@@ -1,56 +1,162 @@
-2025-08-20 03:00:01,304 - photo_api - INFO - Starting Flask application
-2025-08-20 03:00:03,079 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
- * Running on all addresses (0.0.0.0)
- * Running on http://127.0.0.1:4000
- * Running on http://192.168.1.35:4000
-2025-08-20 03:00:03,079 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
-2025-08-20 03:00:11,236 - photo_api - INFO - [REQUEST] GET http://127.0.0.1:4000/ from IP: 127.0.0.1
-2025-08-20 03:00:11,241 - photo_api - INFO - [RESPONSE] GET http://127.0.0.1:4000/ - Status: 200 - IP: 127.0.0.1
-2025-08-20 03:00:11,242 - werkzeug - INFO - 127.0.0.1 - - [20/Aug/2025 03:00:11] "GET / HTTP/1.1" 200 -
-2025-08-20 03:00:11,648 - photo_api - INFO - [REQUEST] GET http://127.0.0.1:4000/favicon.ico from IP: 127.0.0.1
-2025-08-20 03:00:11,649 - photo_api - INFO - [RESPONSE] GET http://127.0.0.1:4000/favicon.ico - Status: 404 - IP: 127.0.0.1
-2025-08-20 03:00:11,650 - werkzeug - INFO - 127.0.0.1 - - [20/Aug/2025 03:00:11] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
-2025-08-20 03:00:43,290 - photo_api - INFO - [REQUEST] POST http://127.0.0.1:4000/api/print from IP: 127.0.0.1
-2025-08-20 03:00:44,451 - photo_api - INFO - [RESPONSE] POST http://127.0.0.1:4000/api/print - Status: 200 - IP: 127.0.0.1
-2025-08-20 03:00:44,451 - werkzeug - INFO - 127.0.0.1 - - [20/Aug/2025 03:00:44] "POST /api/print HTTP/1.1" 200 -
-2025-08-20 03:02:04,244 - photo_api - INFO - [REQUEST] POST http://127.0.0.1:4000/api/print from IP: 127.0.0.1
-2025-08-20 03:02:05,957 - photo_api - INFO - [RESPONSE] POST http://127.0.0.1:4000/api/print - Status: 200 - IP: 127.0.0.1
-2025-08-20 03:02:05,958 - werkzeug - INFO - 127.0.0.1 - - [20/Aug/2025 03:02:05] "POST /api/print HTTP/1.1" 200 -
-2025-08-20 03:14:10,672 - photo_api - INFO - Starting Flask application
-2025-08-20 03:14:12,470 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
- * Running on all addresses (0.0.0.0)
- * Running on http://127.0.0.1:7000
- * Running on http://192.168.1.35:7000
-2025-08-20 03:14:12,470 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
-2025-08-20 03:14:31,272 - photo_api - INFO - [REQUEST] GET http://127.0.0.1:7000/ from IP: 127.0.0.1
-2025-08-20 03:14:31,275 - photo_api - INFO - [RESPONSE] GET http://127.0.0.1:7000/ - Status: 200 - IP: 127.0.0.1
-2025-08-20 03:14:31,276 - werkzeug - INFO - 127.0.0.1 - - [20/Aug/2025 03:14:31] "GET / HTTP/1.1" 200 -
-2025-08-20 03:14:31,610 - photo_api - INFO - [REQUEST] GET http://127.0.0.1:7000/favicon.ico from IP: 127.0.0.1
-2025-08-20 03:14:31,611 - photo_api - INFO - [RESPONSE] GET http://127.0.0.1:7000/favicon.ico - Status: 404 - IP: 127.0.0.1
-2025-08-20 03:14:31,611 - werkzeug - INFO - 127.0.0.1 - - [20/Aug/2025 03:14:31] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
-2025-08-20 03:14:44,039 - photo_api - INFO - [REQUEST] POST http://localhost:7000/api/print from IP: 127.0.0.1
-2025-08-20 03:14:45,871 - photo_api - INFO - [RESPONSE] POST http://localhost:7000/api/print - Status: 200 - IP: 127.0.0.1
-2025-08-20 03:14:45,872 - werkzeug - INFO - 127.0.0.1 - - [20/Aug/2025 03:14:45] "POST /api/print HTTP/1.1" 200 -
-2025-08-20 19:07:14,050 - photo_api - INFO - Starting Flask application
-2025-08-20 19:07:15,843 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
- * Running on all addresses (0.0.0.0)
- * Running on http://127.0.0.1:4000
- * Running on http://192.168.1.43:4000
-2025-08-20 19:07:15,843 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
-2025-08-20 19:07:21,664 - photo_api - INFO - Starting Flask application
-2025-08-20 19:07:23,420 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+2025-08-20 22:48:30,554 - photo_api - INFO - Starting Flask application
+2025-08-20 22:48:32,267 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
  * Running on all addresses (0.0.0.0)
  * Running on http://127.0.0.1:7000
  * Running on http://192.168.1.43:7000
-2025-08-20 19:07:23,420 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
-2025-08-20 19:07:27,549 - photo_api - INFO - [REQUEST] POST http://localhost:7000/api/print from IP: 127.0.0.1
-2025-08-20 19:07:36,426 - photo_api - INFO - Starting Flask application
-2025-08-20 19:07:43,663 - photo_api - INFO - Starting Flask application
-2025-08-20 19:07:45,417 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+2025-08-20 22:48:32,268 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-20 22:48:32,270 - photo_api - INFO - [REQUEST] POST http://localhost:7000/api/process-image from IP: 127.0.0.1
+2025-08-20 22:48:33,275 - photo_api - INFO - [SYSTEM] CPU: 15.9%, Memory: 54.9% (10983MB free), Disk: 22.5GB free
+2025-08-20 22:48:34,454 - photo_api - INFO - Image uploaded successfully: https://upload.dananggo.com/images/20_08_2025/68a5ee5068d93_1755704912.jpg
+2025-08-20 22:48:34,455 - photo_api - INFO - Image uploaded and cached: https://upload.dananggo.com/images/20_08_2025/68a5ee5068d93_1755704912.jpg
+2025-08-20 22:48:34,512 - photo_api - ERROR - Failed to update media session: 404, {"error":"Session not found"}
+2025-08-20 22:48:34,513 - photo_api - INFO - Media session updated with URL: https://upload.dananggo.com/images/20_08_2025/68a5ee5068d93_1755704912.jpg
+2025-08-20 22:48:34,520 - photo_api - INFO - [PERFORMANCE] process_image_task: 1.24s, Memory: 2.6MB
+2025-08-20 22:48:34,522 - photo_api - INFO - [RESPONSE] POST http://localhost:7000/api/process-image - Status: 200 - IP: 127.0.0.1
+2025-08-20 22:48:34,523 - werkzeug - INFO - 127.0.0.1 - - [20/Aug/2025 22:48:34] "POST /api/process-image HTTP/1.1" 200 -
+2025-08-20 22:50:49,951 - photo_api - INFO - [REQUEST] POST http://localhost:7000/api/process-image from IP: 127.0.0.1
+2025-08-20 22:50:50,957 - photo_api - INFO - [SYSTEM] CPU: 10.6%, Memory: 53.0% (11457MB free), Disk: 22.5GB free
+2025-08-20 22:50:51,803 - photo_api - INFO - Image uploaded successfully: https://upload.dananggo.com/images/20_08_2025/68a5eed9baf53_1755705049.jpg
+2025-08-20 22:50:51,804 - photo_api - INFO - Image uploaded and cached: https://upload.dananggo.com/images/20_08_2025/68a5eed9baf53_1755705049.jpg
+2025-08-20 22:50:51,868 - photo_api - ERROR - Failed to update media session: 404, {"error":"Session not found"}
+2025-08-20 22:50:51,868 - photo_api - INFO - Media session updated with URL: https://upload.dananggo.com/images/20_08_2025/68a5eed9baf53_1755705049.jpg
+2025-08-20 22:50:51,875 - photo_api - INFO - [PERFORMANCE] process_image_task: 0.91s, Memory: -0.3MB
+2025-08-20 22:50:51,877 - photo_api - INFO - [RESPONSE] POST http://localhost:7000/api/process-image - Status: 200 - IP: 127.0.0.1
+2025-08-20 22:50:51,878 - werkzeug - INFO - 127.0.0.1 - - [20/Aug/2025 22:50:51] "POST /api/process-image HTTP/1.1" 200 -
+2025-08-20 22:52:47,595 - photo_api - INFO - Starting Flask application
+2025-08-20 22:52:49,365 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
  * Running on all addresses (0.0.0.0)
  * Running on http://127.0.0.1:7000
  * Running on http://192.168.1.43:7000
-2025-08-20 19:07:45,417 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
-2025-08-20 19:07:47,492 - photo_api - INFO - [REQUEST] POST http://localhost:7000/api/print from IP: 127.0.0.1
-2025-08-20 19:07:49,287 - photo_api - INFO - [RESPONSE] POST http://localhost:7000/api/print - Status: 200 - IP: 127.0.0.1
-2025-08-20 19:07:49,288 - werkzeug - INFO - 127.0.0.1 - - [20/Aug/2025 19:07:49] "POST /api/print HTTP/1.1" 200 -
+2025-08-20 22:52:49,365 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-20 22:52:51,587 - photo_api - INFO - [REQUEST] POST http://localhost:7000/api/process-image from IP: 127.0.0.1
+2025-08-20 22:52:52,592 - photo_api - INFO - [SYSTEM] CPU: 9.5%, Memory: 53.7% (11279MB free), Disk: 22.5GB free
+2025-08-20 22:52:53,417 - photo_api - INFO - Image uploaded successfully: https://upload.dananggo.com/images/20_08_2025/68a5ef535ee04_1755705171.jpg
+2025-08-20 22:52:53,418 - photo_api - INFO - Image uploaded and cached: https://upload.dananggo.com/images/20_08_2025/68a5ef535ee04_1755705171.jpg
+2025-08-20 22:52:53,480 - photo_api - ERROR - Failed to update media session: 404, {"error":"Session not found"}
+2025-08-20 22:52:53,481 - photo_api - INFO - Media session updated with URL: https://upload.dananggo.com/images/20_08_2025/68a5ef535ee04_1755705171.jpg
+2025-08-20 22:52:53,487 - photo_api - INFO - [PERFORMANCE] process_image_task: 0.89s, Memory: 3.3MB
+2025-08-20 22:52:53,490 - photo_api - INFO - [RESPONSE] POST http://localhost:7000/api/process-image - Status: 200 - IP: 127.0.0.1
+2025-08-20 22:52:53,491 - werkzeug - INFO - 127.0.0.1 - - [20/Aug/2025 22:52:53] "POST /api/process-image HTTP/1.1" 200 -
+2025-08-20 22:53:28,591 - photo_api - INFO - Starting Flask application
+2025-08-20 22:53:30,380 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:7000
+ * Running on http://192.168.1.43:7000
+2025-08-20 22:53:30,380 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-20 22:53:32,014 - photo_api - INFO - [REQUEST] POST http://localhost:7000/api/process-image from IP: 127.0.0.1
+2025-08-20 22:53:33,020 - photo_api - INFO - [SYSTEM] CPU: 6.3%, Memory: 53.1% (11435MB free), Disk: 22.5GB free
+2025-08-20 22:53:33,813 - photo_api - INFO - Image uploaded successfully: https://upload.dananggo.com/images/20_08_2025/68a5ef7bbe6ce_1755705211.jpg
+2025-08-20 22:53:33,814 - photo_api - INFO - Image uploaded and cached: https://upload.dananggo.com/images/20_08_2025/68a5ef7bbe6ce_1755705211.jpg
+2025-08-20 22:53:33,870 - photo_api - ERROR - Failed to update media session: 404, {"error":"Session not found"}
+2025-08-20 22:53:33,870 - photo_api - INFO - Media session updated with URL: https://upload.dananggo.com/images/20_08_2025/68a5ef7bbe6ce_1755705211.jpg
+2025-08-20 22:53:33,877 - photo_api - INFO - [PERFORMANCE] process_image_task: 0.85s, Memory: 2.5MB
+2025-08-20 22:53:33,880 - photo_api - INFO - [RESPONSE] POST http://localhost:7000/api/process-image - Status: 200 - IP: 127.0.0.1
+2025-08-20 22:53:33,881 - werkzeug - INFO - 127.0.0.1 - - [20/Aug/2025 22:53:33] "POST /api/process-image HTTP/1.1" 200 -
+2025-08-20 22:53:46,756 - photo_api - INFO - Starting Flask application
+2025-08-20 22:53:48,466 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:7000
+ * Running on http://192.168.1.43:7000
+2025-08-20 22:53:48,466 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-20 22:53:48,662 - photo_api - INFO - [REQUEST] POST http://localhost:7000/api/process-image from IP: 127.0.0.1
+2025-08-20 22:53:49,667 - photo_api - INFO - [SYSTEM] CPU: 12.5%, Memory: 53.0% (11441MB free), Disk: 22.5GB free
+2025-08-20 22:53:50,446 - photo_api - INFO - Image uploaded successfully: https://upload.dananggo.com/images/20_08_2025/68a5ef8c659fa_1755705228.jpg
+2025-08-20 22:53:50,447 - photo_api - INFO - Image uploaded and cached: https://upload.dananggo.com/images/20_08_2025/68a5ef8c659fa_1755705228.jpg
+2025-08-20 22:53:50,506 - photo_api - ERROR - Failed to update media session: 404, {"error":"Session not found"}
+2025-08-20 22:53:50,506 - photo_api - INFO - Media session updated with URL: https://upload.dananggo.com/images/20_08_2025/68a5ef8c659fa_1755705228.jpg
+2025-08-20 22:53:50,514 - photo_api - INFO - [PERFORMANCE] process_image_task: 0.84s, Memory: 3.4MB
+2025-08-20 22:53:50,516 - photo_api - INFO - [RESPONSE] POST http://localhost:7000/api/process-image - Status: 200 - IP: 127.0.0.1
+2025-08-20 22:53:50,517 - werkzeug - INFO - 127.0.0.1 - - [20/Aug/2025 22:53:50] "POST /api/process-image HTTP/1.1" 200 -
+2025-08-20 22:54:41,521 - photo_api - INFO - Starting Flask application
+2025-08-20 22:54:43,268 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:7000
+ * Running on http://192.168.1.43:7000
+2025-08-20 22:54:43,268 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-20 22:54:47,187 - photo_api - INFO - [REQUEST] POST http://localhost:7000/api/process-image from IP: 127.0.0.1
+2025-08-20 22:54:48,193 - photo_api - INFO - [SYSTEM] CPU: 7.2%, Memory: 53.2% (11395MB free), Disk: 22.5GB free
+2025-08-20 22:54:48,972 - photo_api - INFO - Image uploaded successfully: https://upload.dananggo.com/images/20_08_2025/68a5efc6e60a5_1755705286.jpg
+2025-08-20 22:54:48,973 - photo_api - INFO - Image uploaded and cached: https://upload.dananggo.com/images/20_08_2025/68a5efc6e60a5_1755705286.jpg
+2025-08-20 22:54:49,031 - photo_api - ERROR - Failed to update media session: 404, {"error":"Session not found"}
+2025-08-20 22:54:49,032 - photo_api - INFO - Media session updated with URL: https://upload.dananggo.com/images/20_08_2025/68a5efc6e60a5_1755705286.jpg
+2025-08-20 22:54:49,037 - photo_api - INFO - [PERFORMANCE] process_image_task: 0.84s, Memory: 2.5MB
+2025-08-20 22:54:49,041 - photo_api - INFO - [RESPONSE] POST http://localhost:7000/api/process-image - Status: 200 - IP: 127.0.0.1
+2025-08-20 22:54:49,042 - werkzeug - INFO - 127.0.0.1 - - [20/Aug/2025 22:54:49] "POST /api/process-image HTTP/1.1" 200 -
+2025-08-20 22:55:43,524 - photo_api - INFO - Starting Flask application
+2025-08-20 22:55:45,255 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:7000
+ * Running on http://192.168.1.43:7000
+2025-08-20 22:55:45,256 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-20 22:55:46,620 - photo_api - INFO - [REQUEST] POST http://localhost:7000/api/process-image from IP: 127.0.0.1
+2025-08-20 22:55:47,625 - photo_api - INFO - [SYSTEM] CPU: 9.2%, Memory: 53.8% (11254MB free), Disk: 22.5GB free
+2025-08-20 22:55:48,645 - photo_api - INFO - Image uploaded successfully: https://upload.dananggo.com/images/20_08_2025/68a5f002960e4_1755705346.jpg
+2025-08-20 22:55:48,646 - photo_api - INFO - Image uploaded and cached: https://upload.dananggo.com/images/20_08_2025/68a5f002960e4_1755705346.jpg
+2025-08-20 22:55:48,705 - photo_api - ERROR - Failed to update media session: 404, {"error":"Session not found"}
+2025-08-20 22:55:48,706 - photo_api - INFO - Media session updated with URL: https://upload.dananggo.com/images/20_08_2025/68a5f002960e4_1755705346.jpg
+2025-08-20 22:55:48,714 - photo_api - INFO - [PERFORMANCE] process_image_task: 1.09s, Memory: 2.5MB
+2025-08-20 22:55:48,715 - photo_api - INFO - [RESPONSE] POST http://localhost:7000/api/process-image - Status: 200 - IP: 127.0.0.1
+2025-08-20 22:55:48,716 - werkzeug - INFO - 127.0.0.1 - - [20/Aug/2025 22:55:48] "POST /api/process-image HTTP/1.1" 200 -
+2025-08-20 22:56:31,654 - photo_api - INFO - [REQUEST] POST http://localhost:7000/api/process-image from IP: 127.0.0.1
+2025-08-20 22:56:32,660 - photo_api - INFO - [SYSTEM] CPU: 8.5%, Memory: 54.0% (11209MB free), Disk: 22.5GB free
+2025-08-20 22:56:33,542 - photo_api - INFO - Image uploaded successfully: https://upload.dananggo.com/images/20_08_2025/68a5f02f7ccf9_1755705391.jpg
+2025-08-20 22:56:33,543 - photo_api - INFO - Image uploaded and cached: https://upload.dananggo.com/images/20_08_2025/68a5f02f7ccf9_1755705391.jpg
+2025-08-20 22:56:33,600 - photo_api - ERROR - Failed to update media session: 404, {"error":"Session not found"}
+2025-08-20 22:56:33,600 - photo_api - INFO - Media session updated with URL: https://upload.dananggo.com/images/20_08_2025/68a5f02f7ccf9_1755705391.jpg
+2025-08-20 22:56:33,608 - photo_api - INFO - [PERFORMANCE] process_image_task: 0.94s, Memory: 1.0MB
+2025-08-20 22:56:33,610 - photo_api - INFO - [RESPONSE] POST http://localhost:7000/api/process-image - Status: 200 - IP: 127.0.0.1
+2025-08-20 22:56:33,611 - werkzeug - INFO - 127.0.0.1 - - [20/Aug/2025 22:56:33] "POST /api/process-image HTTP/1.1" 200 -
+2025-08-20 22:56:39,538 - photo_api - INFO - Starting Flask application
+2025-08-20 22:56:41,261 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:7000
+ * Running on http://192.168.1.43:7000
+2025-08-20 22:56:41,262 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-20 22:56:42,573 - photo_api - INFO - [REQUEST] POST http://localhost:7000/api/process-image from IP: 127.0.0.1
+2025-08-20 22:56:43,578 - photo_api - INFO - [SYSTEM] CPU: 8.7%, Memory: 54.3% (11138MB free), Disk: 22.5GB free
+2025-08-20 22:56:44,356 - photo_api - INFO - Image uploaded successfully: https://upload.dananggo.com/images/20_08_2025/68a5f03a4f4eb_1755705402.jpg
+2025-08-20 22:56:44,357 - photo_api - INFO - Image uploaded and cached: https://upload.dananggo.com/images/20_08_2025/68a5f03a4f4eb_1755705402.jpg
+2025-08-20 22:56:44,416 - photo_api - ERROR - Failed to update media session: 404, {"error":"Session not found"}
+2025-08-20 22:56:44,416 - photo_api - INFO - Media session updated with URL: https://upload.dananggo.com/images/20_08_2025/68a5f03a4f4eb_1755705402.jpg
+2025-08-20 22:56:44,423 - photo_api - INFO - [PERFORMANCE] process_image_task: 0.84s, Memory: 3.3MB
+2025-08-20 22:56:44,426 - photo_api - INFO - [RESPONSE] POST http://localhost:7000/api/process-image - Status: 200 - IP: 127.0.0.1
+2025-08-20 22:56:44,427 - werkzeug - INFO - 127.0.0.1 - - [20/Aug/2025 22:56:44] "POST /api/process-image HTTP/1.1" 200 -
+2025-08-20 22:57:07,070 - photo_api - INFO - Starting Flask application
+2025-08-20 22:57:08,758 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:7000
+ * Running on http://192.168.1.43:7000
+2025-08-20 22:57:08,758 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-20 22:57:10,089 - photo_api - INFO - [REQUEST] POST http://localhost:7000/api/process-image from IP: 127.0.0.1
+2025-08-20 22:57:11,094 - photo_api - INFO - [SYSTEM] CPU: 7.6%, Memory: 54.2% (11155MB free), Disk: 22.5GB free
+2025-08-20 22:57:11,891 - photo_api - INFO - Image uploaded successfully: https://upload.dananggo.com/images/20_08_2025/68a5f055d1f99_1755705429.jpg
+2025-08-20 22:57:11,892 - photo_api - INFO - Image uploaded and cached: https://upload.dananggo.com/images/20_08_2025/68a5f055d1f99_1755705429.jpg
+2025-08-20 22:57:11,948 - photo_api - ERROR - Failed to update media session: 404, {"error":"Session not found"}
+2025-08-20 22:57:11,949 - photo_api - INFO - Media session updated with URL: https://upload.dananggo.com/images/20_08_2025/68a5f055d1f99_1755705429.jpg
+2025-08-20 22:57:11,955 - photo_api - INFO - [PERFORMANCE] process_image_task: 0.86s, Memory: 3.3MB
+2025-08-20 22:57:11,958 - photo_api - INFO - [RESPONSE] POST http://localhost:7000/api/process-image - Status: 200 - IP: 127.0.0.1
+2025-08-20 22:57:11,958 - werkzeug - INFO - 127.0.0.1 - - [20/Aug/2025 22:57:11] "POST /api/process-image HTTP/1.1" 200 -
+2025-08-20 22:57:21,931 - photo_api - INFO - [REQUEST] POST http://localhost:7000/api/process-image from IP: 127.0.0.1
+2025-08-20 22:57:22,936 - photo_api - INFO - [SYSTEM] CPU: 9.9%, Memory: 54.0% (11202MB free), Disk: 22.5GB free
+2025-08-20 22:57:23,703 - photo_api - INFO - Image uploaded successfully: https://upload.dananggo.com/images/20_08_2025/68a5f061a4997_1755705441.jpg
+2025-08-20 22:57:23,703 - photo_api - INFO - Image uploaded and cached: https://upload.dananggo.com/images/20_08_2025/68a5f061a4997_1755705441.jpg
+2025-08-20 22:57:23,762 - photo_api - ERROR - Failed to update media session: 404, {"error":"Session not found"}
+2025-08-20 22:57:23,762 - photo_api - INFO - Media session updated with URL: https://upload.dananggo.com/images/20_08_2025/68a5f061a4997_1755705441.jpg
+2025-08-20 22:57:23,768 - photo_api - INFO - [PERFORMANCE] process_image_task: 0.83s, Memory: 0.5MB
+2025-08-20 22:57:23,772 - photo_api - INFO - [RESPONSE] POST http://localhost:7000/api/process-image - Status: 200 - IP: 127.0.0.1
+2025-08-20 22:57:23,773 - werkzeug - INFO - 127.0.0.1 - - [20/Aug/2025 22:57:23] "POST /api/process-image HTTP/1.1" 200 -
+2025-08-20 22:58:18,818 - photo_api - INFO - Starting Flask application
+2025-08-20 22:58:20,559 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:7000
+ * Running on http://192.168.1.43:7000
+2025-08-20 22:58:20,559 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-20 22:58:22,450 - photo_api - INFO - [REQUEST] POST http://localhost:7000/api/process-image from IP: 127.0.0.1
+2025-08-20 22:58:23,456 - photo_api - INFO - [SYSTEM] CPU: 10.3%, Memory: 53.6% (11298MB free), Disk: 22.5GB free
+2025-08-20 22:58:24,299 - photo_api - INFO - Image uploaded successfully: https://upload.dananggo.com/images/20_08_2025/68a5f09e41170_1755705502.jpg
+2025-08-20 22:58:24,300 - photo_api - INFO - Image uploaded and cached: https://upload.dananggo.com/images/20_08_2025/68a5f09e41170_1755705502.jpg
+2025-08-20 22:58:24,359 - photo_api - ERROR - Failed to update media session: 404, {"error":"Session not found"}
+2025-08-20 22:58:24,360 - photo_api - INFO - Media session updated with URL: https://upload.dananggo.com/images/20_08_2025/68a5f09e41170_1755705502.jpg
+2025-08-20 22:58:24,366 - photo_api - INFO - [PERFORMANCE] process_image_task: 0.91s, Memory: 2.5MB
+2025-08-20 22:58:24,368 - photo_api - INFO - [RESPONSE] POST http://localhost:7000/api/process-image - Status: 200 - IP: 127.0.0.1
+2025-08-20 22:58:24,369 - werkzeug - INFO - 127.0.0.1 - - [20/Aug/2025 22:58:24] "POST /api/process-image HTTP/1.1" 200 -

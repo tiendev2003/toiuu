@@ -212,11 +212,15 @@ def process_image_task(frame_type, image_files, positions, photo_width, photo_he
                 if uploaded_url and media_session_code:
                     # Cập nhật media session với URL đã upload
                     update_media_session(media_session_code, image_url=uploaded_url)
+                    cleanup_files([image_output_file])  # Xoá file local sau khi upload thành công
                     logger.info(f"Media session updated with URL: {uploaded_url}")
+                
+                return uploaded_url
+                
             except Exception as e:
                 logger.warning(f"Failed to upload image to host: {e}")
         
-        return image_output_file
+        return uploaded_url
     except Exception as e:
         logger.error(f"Error in image processing: {str(e)}")
         return None
@@ -267,27 +271,15 @@ def process_image():
                 background_img, overlay_img, total_width, total_height, unique_id, media_session_code, filter_id
             )
             image_output_file = future.result(timeout=PROCESSING_TIMEOUT)
+            print(f"Image output file: {image_output_file}")
             if image_output_file:
-                response_data['image'] = f"/outputs/{os.path.basename(image_output_file)}"
+                response_data['image'] =  image_output_file
             else:
                 cleanup_files(saved_files)
                 return jsonify({"error": "Image processing failed"}), 500
         
-        if 'image' in response_data and request.form.get('prepare_for_printing', 'false').lower() == 'true':
-            print_orientation = request.form.get('print_orientation', '4x6')
-            # Sử dụng daily folder để tìm file
-            daily_output_folder = get_daily_folder(OUTPUT_FOLDER)
-            image_path = os.path.join(daily_output_folder, os.path.basename(response_data['image']))
-            if os.path.exists(image_path):
-                img = Image.open(image_path)
-                print_img = prepare_for_dnp_printing(img, print_orientation)
-                
-                # Không cần tạo ảnh kép nữa vì đã được xử lý trong process_image_task
-                print_path = os.path.join(daily_output_folder, f"print_{unique_id}.jpg")
-                print_img.save(print_path, "JPEG", quality=95)
-                response_data['print_image'] = f"/outputs/print_{unique_id}.jpg"
-        
         cleanup_files(saved_files)
+        cleanup_files(image_files)
         return jsonify(response_data), 200
     except Exception as e:
         cleanup_files(saved_files)
@@ -605,7 +597,7 @@ def download_image():
     image_url = data.get('filePath')
     printerName = data.get('printerName')
     quantity = data.get('quantity', 1)
-
+    logger.info(f"Received print request for image: {image_url}, printer: {printerName}, quantity: {quantity}")
     
     if not image_url:
         return jsonify({"error": "URL is required"}), 400
@@ -630,6 +622,7 @@ def download_image():
             forward_response.raise_for_status()  
             return jsonify(forward_response.json()), forward_response.status_code
     except requests.exceptions.RequestException as e:
+        logger.error(f"Error forwarding print request: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
 
