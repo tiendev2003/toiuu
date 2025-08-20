@@ -1,81 +1,56 @@
-2025-08-19 23:31:29,670 - photo_api - INFO - Starting Flask application
-2025-08-19 23:31:29,732 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+2025-08-20 03:00:01,304 - photo_api - INFO - Starting Flask application
+2025-08-20 03:00:03,079 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
  * Running on all addresses (0.0.0.0)
- * Running on http://127.0.0.1:8000
- * Running on http://192.168.1.6:8000
-2025-08-19 23:31:29,732 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
-2025-08-19 23:31:34,325 - photo_api - INFO - [REQUEST] POST http://localhost:8000/api/process-video from IP: 127.0.0.1
-2025-08-19 23:31:34,346 - photo_api - INFO - [VIDEO PROCESSING] Processing 2 video files with frame type: 3
-2025-08-19 23:31:34,347 - photo_api - INFO - Chuẩn hóa video h264+aac: /Users/trancongtien/Movies/toiuu/uploads/19220ba9-88bd-473a-9bfe-664a946dbe66_video.mp4 -> /Users/trancongtien/Movies/toiuu/uploads/19220ba9-88bd-473a-9bfe-664a946dbe66_video_h264_aac.mp4
-2025-08-19 23:31:34,350 - photo_api - ERROR - Lỗi khi chuẩn hóa video: [Errno 13] Permission denied: '/Users/trancongtien/Movies/toiuu/ffmpeg/bin/ffmpeg.exe'
-2025-08-19 23:31:34,350 - photo_api - INFO - Chuẩn hóa video h264+aac: /Users/trancongtien/Movies/toiuu/uploads/0ced6360-960f-44a2-9735-6ca714c3f37c_video.mp4 -> /Users/trancongtien/Movies/toiuu/uploads/0ced6360-960f-44a2-9735-6ca714c3f37c_video_h264_aac.mp4
-2025-08-19 23:31:34,351 - photo_api - ERROR - Lỗi khi chuẩn hóa video: [Errno 13] Permission denied: '/Users/trancongtien/Movies/toiuu/ffmpeg/bin/ffmpeg.exe'
-2025-08-19 23:31:34,351 - photo_api - INFO - Chuẩn hóa video h264+aac: /Users/trancongtien/Movies/toiuu/uploads/19220ba9-88bd-473a-9bfe-664a946dbe66_video.mp4 -> /Users/trancongtien/Movies/toiuu/uploads/19220ba9-88bd-473a-9bfe-664a946dbe66_video_h264_aac.mp4
-2025-08-19 23:31:34,353 - photo_api - ERROR - Lỗi khi chuẩn hóa video: [Errno 13] Permission denied: '/Users/trancongtien/Movies/toiuu/ffmpeg/bin/ffmpeg.exe'
-2025-08-19 23:31:34,353 - photo_api - INFO - Chuẩn hóa video h264+aac: /Users/trancongtien/Movies/toiuu/uploads/0ced6360-960f-44a2-9735-6ca714c3f37c_video.mp4 -> /Users/trancongtien/Movies/toiuu/uploads/0ced6360-960f-44a2-9735-6ca714c3f37c_video_h264_aac.mp4
-2025-08-19 23:31:34,354 - photo_api - ERROR - Lỗi khi chuẩn hóa video: [Errno 13] Permission denied: '/Users/trancongtien/Movies/toiuu/ffmpeg/bin/ffmpeg.exe'
-2025-08-19 23:31:34,355 - photo_api - INFO - Starting video processing task - duration: 10s, upload: True
-2025-08-19 23:31:34,355 - photo_api - INFO - Starting fast video processing task - original duration: 10s, upload: True
-2025-08-19 23:31:37,411 - photo_api - INFO - Chuẩn hóa video h264+aac: /Users/trancongtien/Movies/toiuu/outputs/2025-08-19/photobooth_fast_cb51b17d-e4fa-465a-9173-226accc5acdd.mp4 -> /Users/trancongtien/Movies/toiuu/outputs/2025-08-19/photobooth_fast_cb51b17d-e4fa-465a-9173-226accc5acdd_h264_aac.mp4
-2025-08-19 23:31:37,439 - photo_api - ERROR - Lỗi khi chuẩn hóa video: [Errno 13] Permission denied: '/Users/trancongtien/Movies/toiuu/ffmpeg/bin/ffmpeg.exe'
-2025-08-19 23:31:37,916 - photo_api - INFO - Upload video response: {'success': True, 'message': 'Upload video thành công', 'data': {'original_name': 'photobooth_fast_cb51b17d-e4fa-465a-9173-226accc5acdd.mp4', 'new_name': '68a4a6e7bf26f_1755621095.mp4', 'size': '232.22 KB', 'type': 'video', 'url': 'videos/19_08_2025/68a4a6e7bf26f_1755621095.mp4', 'upload_time': '2025-08-19 23:31:35', 'date_folder': '19_08_2025', 'applied_filter': 'none', 'quality': 85, 'enhancements': {'brightness': 100, 'contrast': 100, 'saturation': 100}}}
-2025-08-19 23:31:37,916 - photo_api - INFO - Video uploaded successfully: https://upload.dananggo.com/videos/19_08_2025/68a4a6e7bf26f_1755621095.mp4
-2025-08-19 23:31:37,917 - photo_api - INFO - Fast video processing completed successfully: https://upload.dananggo.com/videos/19_08_2025/68a4a6e7bf26f_1755621095.mp4
-2025-08-19 23:31:39,215 - photo_api - INFO - Chuẩn hóa video h264+aac: /Users/trancongtien/Movies/toiuu/outputs/2025-08-19/photobooth_result_1cf28d61-e4e7-493e-8d68-5fd301b75c37.mp4 -> /Users/trancongtien/Movies/toiuu/outputs/2025-08-19/photobooth_result_1cf28d61-e4e7-493e-8d68-5fd301b75c37_h264_aac.mp4
-2025-08-19 23:31:39,243 - photo_api - ERROR - Lỗi khi chuẩn hóa video: [Errno 13] Permission denied: '/Users/trancongtien/Movies/toiuu/ffmpeg/bin/ffmpeg.exe'
-2025-08-19 23:31:39,824 - photo_api - INFO - Upload video response: {'success': True, 'message': 'Upload video thành công', 'data': {'original_name': 'photobooth_result_1cf28d61-e4e7-493e-8d68-5fd301b75c37.mp4', 'new_name': '68a4a6e9a886c_1755621097.mp4', 'size': '689.56 KB', 'type': 'video', 'url': 'videos/19_08_2025/68a4a6e9a886c_1755621097.mp4', 'upload_time': '2025-08-19 23:31:37', 'date_folder': '19_08_2025', 'applied_filter': 'none', 'quality': 85, 'enhancements': {'brightness': 100, 'contrast': 100, 'saturation': 100}}}
-2025-08-19 23:31:39,824 - photo_api - INFO - Video uploaded successfully: https://upload.dananggo.com/videos/19_08_2025/68a4a6e9a886c_1755621097.mp4
-2025-08-19 23:31:39,827 - photo_api - INFO - Video processing completed successfully: https://upload.dananggo.com/videos/19_08_2025/68a4a6e9a886c_1755621097.mp4
-2025-08-19 23:31:39,892 - photo_api - INFO - Media session updated: {'id': '899522f1-7b45-4550-b732-87721853927c', 'sessionCode': 's33fSMwdNE', 'imageUrl': 'https://upload.dananggo.com/images/19_08_2025/68a45c82c6d97_1755602050.jpg', 'videoUrl': 'https://upload.dananggo.com/videos/19_08_2025/68a4a6e9a886c_1755621097.mp4', 'gifUrl': 'https://upload.dananggo.com/videos/19_08_2025/68a4a6e7bf26f_1755621095.mp4', 'status': 'COMPLETED', 'storeId': 'b8f2b187-f479-442d-83d1-f95c3f7094d5', 'createdAt': '2025-08-19T11:13:58.969Z', 'updatedAt': '2025-08-19T16:31:39.903Z', 'expiresAt': '2025-08-22T11:13:58.968Z'}
-2025-08-19 23:31:39,894 - photo_api - INFO - [RESPONSE] POST http://localhost:8000/api/process-video - Status: 200 - IP: 127.0.0.1
-2025-08-19 23:31:39,897 - werkzeug - INFO - 127.0.0.1 - - [19/Aug/2025 23:31:39] "POST /api/process-video HTTP/1.1" 200 -
-2025-08-19 23:39:38,202 - photo_api - INFO - [REQUEST] POST http://localhost:8000/api/process-video from IP: 127.0.0.1
-2025-08-19 23:39:38,224 - photo_api - INFO - [VIDEO PROCESSING] Processing 2 video files with frame type: 3
-2025-08-19 23:39:38,224 - photo_api - INFO - Chuẩn hóa video h264+aac: /Users/trancongtien/Movies/toiuu/uploads/71520691-30a4-47d8-9bef-db59f0cb2d20_video.mp4 -> /Users/trancongtien/Movies/toiuu/uploads/71520691-30a4-47d8-9bef-db59f0cb2d20_video_h264_aac.mp4
-2025-08-19 23:39:38,227 - photo_api - ERROR - Lỗi khi chuẩn hóa video: [Errno 13] Permission denied: '/Users/trancongtien/Movies/toiuu/ffmpeg/bin/ffmpeg.exe'
-2025-08-19 23:39:38,227 - photo_api - INFO - Chuẩn hóa video h264+aac: /Users/trancongtien/Movies/toiuu/uploads/5d22670d-45e1-47c4-b869-516bf348a643_video.mp4 -> /Users/trancongtien/Movies/toiuu/uploads/5d22670d-45e1-47c4-b869-516bf348a643_video_h264_aac.mp4
-2025-08-19 23:39:38,229 - photo_api - ERROR - Lỗi khi chuẩn hóa video: [Errno 13] Permission denied: '/Users/trancongtien/Movies/toiuu/ffmpeg/bin/ffmpeg.exe'
-2025-08-19 23:39:38,229 - photo_api - INFO - Chuẩn hóa video h264+aac: /Users/trancongtien/Movies/toiuu/uploads/71520691-30a4-47d8-9bef-db59f0cb2d20_video.mp4 -> /Users/trancongtien/Movies/toiuu/uploads/71520691-30a4-47d8-9bef-db59f0cb2d20_video_h264_aac.mp4
-2025-08-19 23:39:38,231 - photo_api - ERROR - Lỗi khi chuẩn hóa video: [Errno 13] Permission denied: '/Users/trancongtien/Movies/toiuu/ffmpeg/bin/ffmpeg.exe'
-2025-08-19 23:39:38,232 - photo_api - INFO - Chuẩn hóa video h264+aac: /Users/trancongtien/Movies/toiuu/uploads/5d22670d-45e1-47c4-b869-516bf348a643_video.mp4 -> /Users/trancongtien/Movies/toiuu/uploads/5d22670d-45e1-47c4-b869-516bf348a643_video_h264_aac.mp4
-2025-08-19 23:39:38,234 - photo_api - ERROR - Lỗi khi chuẩn hóa video: [Errno 13] Permission denied: '/Users/trancongtien/Movies/toiuu/ffmpeg/bin/ffmpeg.exe'
-2025-08-19 23:39:38,235 - photo_api - INFO - Starting video processing task - duration: 10s, upload: True
-2025-08-19 23:39:38,236 - photo_api - INFO - Starting fast video processing task - original duration: 10s, upload: True
-2025-08-19 23:39:40,724 - photo_api - INFO - Chuẩn hóa video h264+aac: /Users/trancongtien/Movies/toiuu/outputs/2025-08-19/photobooth_fast_0de5379d-c474-48e3-9c0d-47f73a446a6a.mp4 -> /Users/trancongtien/Movies/toiuu/outputs/2025-08-19/photobooth_fast_0de5379d-c474-48e3-9c0d-47f73a446a6a_h264_aac.mp4
-2025-08-19 23:39:40,750 - photo_api - ERROR - Lỗi khi chuẩn hóa video: [Errno 13] Permission denied: '/Users/trancongtien/Movies/toiuu/ffmpeg/bin/ffmpeg.exe'
-2025-08-19 23:39:41,421 - photo_api - INFO - Upload video response: {'success': True, 'message': 'Upload video thành công', 'data': {'original_name': 'photobooth_fast_0de5379d-c474-48e3-9c0d-47f73a446a6a.mp4', 'new_name': '68a4a8cb2a865_1755621579.mp4', 'size': '232.22 KB', 'type': 'video', 'url': 'videos/19_08_2025/68a4a8cb2a865_1755621579.mp4', 'upload_time': '2025-08-19 23:39:39', 'date_folder': '19_08_2025', 'applied_filter': 'none', 'quality': 85, 'enhancements': {'brightness': 100, 'contrast': 100, 'saturation': 100}}}
-2025-08-19 23:39:41,421 - photo_api - INFO - Video uploaded successfully: https://upload.dananggo.com/videos/19_08_2025/68a4a8cb2a865_1755621579.mp4
-2025-08-19 23:39:41,422 - photo_api - INFO - Fast video processing completed successfully: https://upload.dananggo.com/videos/19_08_2025/68a4a8cb2a865_1755621579.mp4
-2025-08-19 23:39:42,620 - photo_api - INFO - Chuẩn hóa video h264+aac: /Users/trancongtien/Movies/toiuu/outputs/2025-08-19/photobooth_result_58573fdd-e34c-4b25-8e30-8e55f9a306d4.mp4 -> /Users/trancongtien/Movies/toiuu/outputs/2025-08-19/photobooth_result_58573fdd-e34c-4b25-8e30-8e55f9a306d4_h264_aac.mp4
-2025-08-19 23:39:42,641 - photo_api - ERROR - Lỗi khi chuẩn hóa video: [Errno 13] Permission denied: '/Users/trancongtien/Movies/toiuu/ffmpeg/bin/ffmpeg.exe'
-2025-08-19 23:39:43,162 - photo_api - INFO - Upload video response: {'success': True, 'message': 'Upload video thành công', 'data': {'original_name': 'photobooth_result_58573fdd-e34c-4b25-8e30-8e55f9a306d4.mp4', 'new_name': '68a4a8ccebc69_1755621580.mp4', 'size': '689.56 KB', 'type': 'video', 'url': 'videos/19_08_2025/68a4a8ccebc69_1755621580.mp4', 'upload_time': '2025-08-19 23:39:40', 'date_folder': '19_08_2025', 'applied_filter': 'none', 'quality': 85, 'enhancements': {'brightness': 100, 'contrast': 100, 'saturation': 100}}}
-2025-08-19 23:39:43,162 - photo_api - INFO - Video uploaded successfully: https://upload.dananggo.com/videos/19_08_2025/68a4a8ccebc69_1755621580.mp4
-2025-08-19 23:39:43,165 - photo_api - INFO - Video processing completed successfully: https://upload.dananggo.com/videos/19_08_2025/68a4a8ccebc69_1755621580.mp4
-2025-08-19 23:39:43,249 - photo_api - INFO - Media session updated: {'id': '899522f1-7b45-4550-b732-87721853927c', 'sessionCode': 's33fSMwdNE', 'imageUrl': 'https://upload.dananggo.com/images/19_08_2025/68a45c82c6d97_1755602050.jpg', 'videoUrl': 'https://upload.dananggo.com/videos/19_08_2025/68a4a8ccebc69_1755621580.mp4', 'gifUrl': 'https://upload.dananggo.com/videos/19_08_2025/68a4a8cb2a865_1755621579.mp4', 'status': 'COMPLETED', 'storeId': 'b8f2b187-f479-442d-83d1-f95c3f7094d5', 'createdAt': '2025-08-19T11:13:58.969Z', 'updatedAt': '2025-08-19T16:39:43.256Z', 'expiresAt': '2025-08-22T11:13:58.968Z'}
-2025-08-19 23:39:43,251 - photo_api - INFO - [RESPONSE] POST http://localhost:8000/api/process-video - Status: 200 - IP: 127.0.0.1
-2025-08-19 23:39:43,254 - werkzeug - INFO - 127.0.0.1 - - [19/Aug/2025 23:39:43] "POST /api/process-video HTTP/1.1" 200 -
-2025-08-19 23:40:39,124 - photo_api - INFO - [REQUEST] POST http://localhost:8000/api/process-video from IP: 127.0.0.1
-2025-08-19 23:40:39,146 - photo_api - INFO - [VIDEO PROCESSING] Processing 2 video files with frame type: 3
-2025-08-19 23:40:39,146 - photo_api - INFO - Chuẩn hóa video h264+aac: /Users/trancongtien/Movies/toiuu/uploads/50a4bdcb-4fbd-40d9-986b-3bf326adcafd_video.mp4 -> /Users/trancongtien/Movies/toiuu/uploads/50a4bdcb-4fbd-40d9-986b-3bf326adcafd_video_h264_aac.mp4
-2025-08-19 23:40:39,150 - photo_api - ERROR - Lỗi khi chuẩn hóa video: [Errno 13] Permission denied: '/Users/trancongtien/Movies/toiuu/ffmpeg/bin/ffmpeg.exe'
-2025-08-19 23:40:39,151 - photo_api - INFO - Chuẩn hóa video h264+aac: /Users/trancongtien/Movies/toiuu/uploads/6191c740-cb2d-4480-b533-22c3aaf79327_video.mp4 -> /Users/trancongtien/Movies/toiuu/uploads/6191c740-cb2d-4480-b533-22c3aaf79327_video_h264_aac.mp4
-2025-08-19 23:40:39,154 - photo_api - ERROR - Lỗi khi chuẩn hóa video: [Errno 13] Permission denied: '/Users/trancongtien/Movies/toiuu/ffmpeg/bin/ffmpeg.exe'
-2025-08-19 23:40:39,155 - photo_api - INFO - Chuẩn hóa video h264+aac: /Users/trancongtien/Movies/toiuu/uploads/50a4bdcb-4fbd-40d9-986b-3bf326adcafd_video.mp4 -> /Users/trancongtien/Movies/toiuu/uploads/50a4bdcb-4fbd-40d9-986b-3bf326adcafd_video_h264_aac.mp4
-2025-08-19 23:40:39,157 - photo_api - ERROR - Lỗi khi chuẩn hóa video: [Errno 13] Permission denied: '/Users/trancongtien/Movies/toiuu/ffmpeg/bin/ffmpeg.exe'
-2025-08-19 23:40:39,158 - photo_api - INFO - Chuẩn hóa video h264+aac: /Users/trancongtien/Movies/toiuu/uploads/6191c740-cb2d-4480-b533-22c3aaf79327_video.mp4 -> /Users/trancongtien/Movies/toiuu/uploads/6191c740-cb2d-4480-b533-22c3aaf79327_video_h264_aac.mp4
-2025-08-19 23:40:39,160 - photo_api - ERROR - Lỗi khi chuẩn hóa video: [Errno 13] Permission denied: '/Users/trancongtien/Movies/toiuu/ffmpeg/bin/ffmpeg.exe'
-2025-08-19 23:40:39,161 - photo_api - INFO - Starting fast video processing task - original duration: 10s, upload: True
-2025-08-19 23:40:39,161 - photo_api - INFO - Starting video processing task - duration: 10s, upload: True
-2025-08-19 23:40:41,868 - photo_api - INFO - Chuẩn hóa video h264+aac: /Users/trancongtien/Movies/toiuu/outputs/2025-08-19/photobooth_fast_12c54821-db5e-4c96-b24d-f376e0156a8c.mp4 -> /Users/trancongtien/Movies/toiuu/outputs/2025-08-19/photobooth_fast_12c54821-db5e-4c96-b24d-f376e0156a8c_h264_aac.mp4
-2025-08-19 23:40:41,894 - photo_api - ERROR - Lỗi khi chuẩn hóa video: [Errno 13] Permission denied: '/Users/trancongtien/Movies/toiuu/ffmpeg/bin/ffmpeg.exe'
-2025-08-19 23:40:42,786 - photo_api - INFO - Upload video response: {'success': True, 'message': 'Upload video thành công', 'data': {'original_name': 'photobooth_fast_12c54821-db5e-4c96-b24d-f376e0156a8c.mp4', 'new_name': '68a4a9089c35c_1755621640.mp4', 'size': '233.03 KB', 'type': 'video', 'url': 'videos/19_08_2025/68a4a9089c35c_1755621640.mp4', 'upload_time': '2025-08-19 23:40:40', 'date_folder': '19_08_2025', 'applied_filter': 'none', 'quality': 85, 'enhancements': {'brightness': 100, 'contrast': 100, 'saturation': 100}}}
-2025-08-19 23:40:42,786 - photo_api - INFO - Video uploaded successfully: https://upload.dananggo.com/videos/19_08_2025/68a4a9089c35c_1755621640.mp4
-2025-08-19 23:40:42,786 - photo_api - INFO - Fast video processing completed successfully: https://upload.dananggo.com/videos/19_08_2025/68a4a9089c35c_1755621640.mp4
-2025-08-19 23:40:43,880 - photo_api - INFO - Chuẩn hóa video h264+aac: /Users/trancongtien/Movies/toiuu/outputs/2025-08-19/photobooth_result_76b7ec84-07e4-4d66-8505-fe2653078e46.mp4 -> /Users/trancongtien/Movies/toiuu/outputs/2025-08-19/photobooth_result_76b7ec84-07e4-4d66-8505-fe2653078e46_h264_aac.mp4
-2025-08-19 23:40:43,966 - photo_api - ERROR - Lỗi khi chuẩn hóa video: [Errno 13] Permission denied: '/Users/trancongtien/Movies/toiuu/ffmpeg/bin/ffmpeg.exe'
-2025-08-19 23:40:44,596 - photo_api - INFO - Upload video response: {'success': True, 'message': 'Upload video thành công', 'data': {'original_name': 'photobooth_result_76b7ec84-07e4-4d66-8505-fe2653078e46.mp4', 'new_name': '68a4a90a5dc0c_1755621642.mp4', 'size': '689.47 KB', 'type': 'video', 'url': 'videos/19_08_2025/68a4a90a5dc0c_1755621642.mp4', 'upload_time': '2025-08-19 23:40:42', 'date_folder': '19_08_2025', 'applied_filter': 'none', 'quality': 85, 'enhancements': {'brightness': 100, 'contrast': 100, 'saturation': 100}}}
-2025-08-19 23:40:44,596 - photo_api - INFO - Video uploaded successfully: https://upload.dananggo.com/videos/19_08_2025/68a4a90a5dc0c_1755621642.mp4
-2025-08-19 23:40:44,615 - photo_api - INFO - Video processing completed successfully: https://upload.dananggo.com/videos/19_08_2025/68a4a90a5dc0c_1755621642.mp4
-2025-08-19 23:40:44,692 - photo_api - INFO - Media session updated: {'id': '899522f1-7b45-4550-b732-87721853927c', 'sessionCode': 's33fSMwdNE', 'imageUrl': 'https://upload.dananggo.com/images/19_08_2025/68a45c82c6d97_1755602050.jpg', 'videoUrl': 'https://upload.dananggo.com/videos/19_08_2025/68a4a90a5dc0c_1755621642.mp4', 'gifUrl': 'https://upload.dananggo.com/videos/19_08_2025/68a4a9089c35c_1755621640.mp4', 'status': 'COMPLETED', 'storeId': 'b8f2b187-f479-442d-83d1-f95c3f7094d5', 'createdAt': '2025-08-19T11:13:58.969Z', 'updatedAt': '2025-08-19T16:40:44.700Z', 'expiresAt': '2025-08-22T11:13:58.968Z'}
-2025-08-19 23:40:44,696 - photo_api - INFO - [RESPONSE] POST http://localhost:8000/api/process-video - Status: 200 - IP: 127.0.0.1
-2025-08-19 23:40:44,699 - werkzeug - INFO - 127.0.0.1 - - [19/Aug/2025 23:40:44] "POST /api/process-video HTTP/1.1" 200 -
+ * Running on http://127.0.0.1:4000
+ * Running on http://192.168.1.35:4000
+2025-08-20 03:00:03,079 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-20 03:00:11,236 - photo_api - INFO - [REQUEST] GET http://127.0.0.1:4000/ from IP: 127.0.0.1
+2025-08-20 03:00:11,241 - photo_api - INFO - [RESPONSE] GET http://127.0.0.1:4000/ - Status: 200 - IP: 127.0.0.1
+2025-08-20 03:00:11,242 - werkzeug - INFO - 127.0.0.1 - - [20/Aug/2025 03:00:11] "GET / HTTP/1.1" 200 -
+2025-08-20 03:00:11,648 - photo_api - INFO - [REQUEST] GET http://127.0.0.1:4000/favicon.ico from IP: 127.0.0.1
+2025-08-20 03:00:11,649 - photo_api - INFO - [RESPONSE] GET http://127.0.0.1:4000/favicon.ico - Status: 404 - IP: 127.0.0.1
+2025-08-20 03:00:11,650 - werkzeug - INFO - 127.0.0.1 - - [20/Aug/2025 03:00:11] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-08-20 03:00:43,290 - photo_api - INFO - [REQUEST] POST http://127.0.0.1:4000/api/print from IP: 127.0.0.1
+2025-08-20 03:00:44,451 - photo_api - INFO - [RESPONSE] POST http://127.0.0.1:4000/api/print - Status: 200 - IP: 127.0.0.1
+2025-08-20 03:00:44,451 - werkzeug - INFO - 127.0.0.1 - - [20/Aug/2025 03:00:44] "POST /api/print HTTP/1.1" 200 -
+2025-08-20 03:02:04,244 - photo_api - INFO - [REQUEST] POST http://127.0.0.1:4000/api/print from IP: 127.0.0.1
+2025-08-20 03:02:05,957 - photo_api - INFO - [RESPONSE] POST http://127.0.0.1:4000/api/print - Status: 200 - IP: 127.0.0.1
+2025-08-20 03:02:05,958 - werkzeug - INFO - 127.0.0.1 - - [20/Aug/2025 03:02:05] "POST /api/print HTTP/1.1" 200 -
+2025-08-20 03:14:10,672 - photo_api - INFO - Starting Flask application
+2025-08-20 03:14:12,470 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:7000
+ * Running on http://192.168.1.35:7000
+2025-08-20 03:14:12,470 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-20 03:14:31,272 - photo_api - INFO - [REQUEST] GET http://127.0.0.1:7000/ from IP: 127.0.0.1
+2025-08-20 03:14:31,275 - photo_api - INFO - [RESPONSE] GET http://127.0.0.1:7000/ - Status: 200 - IP: 127.0.0.1
+2025-08-20 03:14:31,276 - werkzeug - INFO - 127.0.0.1 - - [20/Aug/2025 03:14:31] "GET / HTTP/1.1" 200 -
+2025-08-20 03:14:31,610 - photo_api - INFO - [REQUEST] GET http://127.0.0.1:7000/favicon.ico from IP: 127.0.0.1
+2025-08-20 03:14:31,611 - photo_api - INFO - [RESPONSE] GET http://127.0.0.1:7000/favicon.ico - Status: 404 - IP: 127.0.0.1
+2025-08-20 03:14:31,611 - werkzeug - INFO - 127.0.0.1 - - [20/Aug/2025 03:14:31] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-08-20 03:14:44,039 - photo_api - INFO - [REQUEST] POST http://localhost:7000/api/print from IP: 127.0.0.1
+2025-08-20 03:14:45,871 - photo_api - INFO - [RESPONSE] POST http://localhost:7000/api/print - Status: 200 - IP: 127.0.0.1
+2025-08-20 03:14:45,872 - werkzeug - INFO - 127.0.0.1 - - [20/Aug/2025 03:14:45] "POST /api/print HTTP/1.1" 200 -
+2025-08-20 19:07:14,050 - photo_api - INFO - Starting Flask application
+2025-08-20 19:07:15,843 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:4000
+ * Running on http://192.168.1.43:4000
+2025-08-20 19:07:15,843 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-20 19:07:21,664 - photo_api - INFO - Starting Flask application
+2025-08-20 19:07:23,420 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:7000
+ * Running on http://192.168.1.43:7000
+2025-08-20 19:07:23,420 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-20 19:07:27,549 - photo_api - INFO - [REQUEST] POST http://localhost:7000/api/print from IP: 127.0.0.1
+2025-08-20 19:07:36,426 - photo_api - INFO - Starting Flask application
+2025-08-20 19:07:43,663 - photo_api - INFO - Starting Flask application
+2025-08-20 19:07:45,417 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:7000
+ * Running on http://192.168.1.43:7000
+2025-08-20 19:07:45,417 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-20 19:07:47,492 - photo_api - INFO - [REQUEST] POST http://localhost:7000/api/print from IP: 127.0.0.1
+2025-08-20 19:07:49,287 - photo_api - INFO - [RESPONSE] POST http://localhost:7000/api/print - Status: 200 - IP: 127.0.0.1
+2025-08-20 19:07:49,288 - werkzeug - INFO - 127.0.0.1 - - [20/Aug/2025 19:07:49] "POST /api/print HTTP/1.1" 200 -

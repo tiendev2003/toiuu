@@ -77,13 +77,10 @@ UPLOAD_TIMEOUT = 120        # 2 phút cho upload
 # URLs
 URL_MAIN = "http://localhost:4000"
 URL_FRONTEND = "https://s.mayphotobooth.com"
-URL_PRINT = "http://localhost:5000/api/print"
+URL_PRINT = "http://localhost:4000/api/print"
 
 # Print server settings
 PRINT_SERVER_IP = "192.168.1.60"  # IP máy chủ in - thay đổi theo ip thực tế
-PRINT_SERVER_PORT = 5000
-PRINT_API_ENDPOINT = "/api/print"
-PRINT_LIST_ENDPOINT = "/api/printers"
 PRINTER_CACHE_TIMEOUT = 300  # 5 phút cache danh sách máy in
 
 def get_daily_folder(base_folder):

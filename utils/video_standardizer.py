@@ -58,7 +58,7 @@ def standardize_video(input_file, output_file=None, crf=23, preset="fast"):
         ]
         
         logger.info(f"Chuẩn hóa video h264+aac: {input_file} -> {output_file}")
-        result = subprocess.run(cmd, check=True, capture_output=True, text=True)
+        result = subprocess.run(cmd, check=True, capture_output=True, text=True,creationflags=subprocess.CREATE_NO_WINDOW)
         
         # Kiểm tra file output
         if os.path.exists(output_file) and os.path.getsize(output_file) > 0:
@@ -121,7 +121,7 @@ def verify_video_codec(video_file):
             '-show_streams', video_file
         ]
         
-        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True,creationflags=subprocess.CREATE_NO_WINDOW)
         
         import json
         data = json.loads(result.stdout)

@@ -53,7 +53,7 @@ def detect_webm_codec(webm_file):
             ffprobe_cmd, '-v', 'quiet', '-print_format', 'json',
             '-show_streams', webm_file
         ]
-        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True,creationflags=subprocess.CREATE_NO_WINDOW)
         
         import json
         data = json.loads(result.stdout)
@@ -111,7 +111,7 @@ def optimize_webm_for_opencv(input_file, output_file=None):
         cmd.append(output_file)
         
         logger.info(f"Optimizing WebM for OpenCV: {input_file} -> {output_file}")
-        result = subprocess.run(cmd, check=True, capture_output=True, text=True)
+        result = subprocess.run(cmd, check=True, capture_output=True, text=True,creationflags=subprocess.CREATE_NO_WINDOW)
         
         if os.path.exists(output_file) and os.path.getsize(output_file) > 0:
             logger.info(f"WebM optimization successful: {output_file}")

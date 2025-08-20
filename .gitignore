@@ -3,3 +3,7 @@ utils/__pycache__
 venv/
 venv
 /utils/__pycache__/
+/build
+/dist
+app.spec
+my_flask_app.spec

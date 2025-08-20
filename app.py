@@ -18,13 +18,14 @@ from utils.filters import apply_filter_to_image
 from utils.performance import performance_monitor, log_system_stats
 from utils.upload import upload_image_to_host
 from config import (
-    UPLOAD_FOLDER, OUTPUT_FOLDER, FRAME_TYPES, FRAME_MARGINS, FRAME_GAPS, 
+    PRINT_SERVER_IP, UPLOAD_FOLDER, OUTPUT_FOLDER, FRAME_TYPES, FRAME_MARGINS, FRAME_GAPS, 
     GAP_DEFAULT, GAP_PROCESSING, VIDEO_FPS, FAST_VIDEO_DURATION, 
     MAX_PROCESSING_WORKERS, MAX_UPLOAD_WORKERS, PROCESSING_TIMEOUT, 
     UPLOAD_TIMEOUT, URL_MAIN, URL_FRONTEND, FRAME_TYPE_DESCRIPTIONS, 
     get_frame_gap, get_frame_margin, get_print_margin, MAX_INPUT_IMAGE_SIZE,
-    get_daily_folder, PRINT_SERVER_IP, PRINT_SERVER_PORT
+    get_daily_folder, 
 )
+from utils.print_utils import print_image, get_local_ip, _download_and_save_image
 def get_base_path():
     # Khi đóng gói bằng PyInstaller, dùng _MEIPASS làm base path
     if getattr(sys, 'frozen', False):
@@ -36,6 +37,7 @@ UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
 
 # Tạo thư mục nếu chưa tồn tại
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs("downloads", exist_ok=True)
 app = Flask(__name__, static_url_path='', static_folder='static')
 CORS(app)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -597,8 +599,41 @@ def serve_output(filename):
 def index():
     return render_template('index.html')
 
+@app.route('/api/print', methods=['POST'])
+def download_image():
+    data = request.get_json()
+    image_url = data.get('filePath')
+    printerName = data.get('printerName')
+    quantity = data.get('quantity', 1)
+
+    
+    if not image_url:
+        return jsonify({"error": "URL is required"}), 400
+
+    local_machine_ip = get_local_ip()
+    print(f"Local Machine IP: {local_machine_ip}")
+
+    try:
+        if local_machine_ip == PRINT_SERVER_IP:
+            print("This is the designated server. Performing local download.")
+            result = _download_and_save_image(image_url)
+            relative_path = result['image_path'].replace('/', os.sep).replace('\\', os.sep).lstrip(os.sep)
+            full_path = os.path.join(os.getcwd(), relative_path)
+
+            print(f"Image saved at: {full_path}")
+            print_image(full_path, printerName, quantity)
+            return jsonify({"message": "Image downloaded successfully", **result}), 200
+        else:
+            print(f"This is not the designated server. Forwarding request to {PRINT_SERVER_IP}.")
+            forward_url = f"http://{PRINT_SERVER_IP}:4000/api/print"   
+            forward_response = requests.post(forward_url, json={'filePath': image_url, 'printerName': printerName, 'quantity': quantity})
+            forward_response.raise_for_status()  
+            return jsonify(forward_response.json()), forward_response.status_code
+    except requests.exceptions.RequestException as e:
+        return jsonify({"error": str(e)}), 500
+
 
 if __name__ == '__main__':
     logger.info("Starting Flask application")
     # Tắt debug mode để tránh multiple processes và threading issues
-    app.run(debug=False, host='0.0.0.0', port=8000, threaded=True, use_reloader=False)
+    app.run(debug=False, host='0.0.0.0', port=4000, threaded=True, use_reloader=False)

@@ -90,8 +90,8 @@ def optimize_video_for_opencv(input_file):
         ]
         
         print(f"[VIDEO OPTIMIZE] Optimizing {input_file} for OpenCV...")
-        subprocess.run(cmd, check=True, capture_output=True)
-        
+        subprocess.run(cmd, check=True, capture_output=True, creationflags=subprocess.CREATE_NO_WINDOW)
+
         if os.path.exists(optimized_file) and os.path.getsize(optimized_file) > 0:
             print(f"[VIDEO OPTIMIZE] Successfully optimized: {optimized_file}")
             return optimized_file
@@ -226,7 +226,7 @@ def get_video_info(video_path):
             ffprobe_cmd, '-v', 'quiet', '-print_format', 'json', 
             '-show_format', '-show_streams', video_path
         ]
-        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True,creationflags=subprocess.CREATE_NO_WINDOW)
         data = json.loads(result.stdout)
         
         video_stream = next((s for s in data['streams'] if s['codec_type'] == 'video'), None)
