@@ -27,13 +27,15 @@ FRAME_TYPES = {
     "5": {"name": "Khung hình 2x2", "columns": 2, "rows": 2, "isCustom": False, "isCircle": False},
     "6": {"name": "Khung hình 1x4 (6x2in)", "columns": 1, "rows": 4, "isCustom": True, "isCircle": False},
     "7": {"name": "Khung hình 2x3", "columns": 2, "rows": 3, "isCustom": False, "isCircle": False},
-    "8": {"name": "Khung hình 3x2", "columns": 3, "rows": 2, "isCustom": False, "isCircle": False}
+    "8": {"name": "Khung hình 3x2", "columns": 3, "rows": 2, "isCustom": False, "isCircle": False},
+    "9": {"name": "Khung hình 1x2 ngang", "columns": 1, "rows": 2, "isCustom": False, "isCircle": False}
 }
 
 ASPECT_RATIOS = {
     (1, 1, False): (16, 9), (1, 1, True): (1, 1), (2, 1, False): (1, 1),
     (2, 1, True): (3, 4), (2, 2, False): (4, 3), (3, 2, False): (5, 4),
-    (2, 3, False): (13, 12), (1, 4, True): (4, 3), (1, 2, True): (3, 4)
+    (2, 3, False): (13, 12), (1, 4, True): (4, 3), (1, 2, True): (3, 4),
+    (1, 2, False): (4, 3)
 }
 
 # Frame margins and gaps
@@ -52,7 +54,8 @@ FRAME_MARGINS = {
     "5": MARGIN_DEFAULT,     
     "6": MARGIN_LARGE,     
     "7": MARGIN_DEFAULT,   
-    "8": MARGIN_DEFAULT,  
+    "8": MARGIN_DEFAULT,
+    "9": MARGIN_DEFAULT,
 }
 FRAME_GAPS = {
     "1": GAP_MIN,      # Frame 1x1 không cần gap
@@ -63,6 +66,7 @@ FRAME_GAPS = {
     "6": GAP_MIN,   # Frame custom
     "7": GAP_MIN,      # Frame 3x3
     "8": GAP_MIN,   # Frame custom
+    "9": GAP_MIN,      # Frame 1x2 ngang
 }
 # Video settings
 VIDEO_FPS = 30
@@ -77,10 +81,13 @@ UPLOAD_TIMEOUT = 120        # 2 phút cho upload
 # URLs
 URL_MAIN = "http://localhost:4000"
 URL_FRONTEND = "https://s.mayphotobooth.com"
-URL_PRINT = "http://localhost:4000/api/print"
+URL_PRINT = "http://localhost:5000/api/print"
 
 # Print server settings
 PRINT_SERVER_IP = "192.168.1.60"  # IP máy chủ in - thay đổi theo ip thực tế
+PRINT_SERVER_PORT = 5000
+PRINT_API_ENDPOINT = "/api/print"
+PRINT_LIST_ENDPOINT = "/api/printers"
 PRINTER_CACHE_TIMEOUT = 300  # 5 phút cache danh sách máy in
 
 def get_daily_folder(base_folder):

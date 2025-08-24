@@ -17,6 +17,9 @@ def get_frame_size(frame_type):
         return WIDTH_IMAGE, HEIGHT_IMAGE
     if frame_type["columns"] == 2 and frame_type["rows"] == 2:
         return WIDTH_IMAGE, HEIGHT_IMAGE
+    # Frame 1x2 ngang (giống như nửa frame 2x2)
+    if frame_type["columns"] == 1 and frame_type["rows"] == 2 and not frame_type.get("isCustom", False):
+        return WIDTH_IMAGE, HEIGHT_IMAGE
     return (WIDTH_IMAGE, HEIGHT_IMAGE) if frame_type["columns"] > frame_type["rows"] else (HEIGHT_IMAGE, WIDTH_IMAGE)
 
 def calc_aspect_ratio(frame_type):
@@ -56,7 +59,6 @@ def fit_cover_image(image, output_size, crop_direction="center"):
     aspect_img = img_w / img_h
     aspect_out = out_w / out_h
     
-    # Sử dụng BICUBIC thay vì LANCZOS để nhanh hơn
     if aspect_img > aspect_out:
         new_h = out_h
         new_w = int(new_h * aspect_img)
@@ -68,8 +70,7 @@ def fit_cover_image(image, output_size, crop_direction="center"):
         top = 0 if crop_direction == "top" else (new_h - out_h) // 2
         crop_box = (0, top, new_w, top + out_h)
     
-    # Sử dụng BICUBIC thay vì LANCZOS để resize nhanh hơn
-    image = image.resize((new_w, new_h), Image.Resampling.BICUBIC)
+    image = image.resize((new_w, new_h), Image.Resampling.LANCZOS)
     image = image.crop(crop_box)
     
     # Chỉ áp dụng sharpness khi cần thiết
@@ -86,15 +87,17 @@ def paste_image(frame, img, pos, size, is_circle, frame_type=None):
     scale_h = size[1] / img.height
     scale = max(scale_w, scale_h)
     
-    # Sử dụng BICUBIC thay vì LANCZOS để resize nhanh hơn
     if scale != 1.0:
-        img = img.resize((int(img.width * scale), int(img.height * scale)), Image.Resampling.BICUBIC)
-    
+        img = img.resize((int(img.width * scale), int(img.height * scale)), Image.Resampling.LANCZOS)
+
     crop_left = crop_top = False
     if frame_type:
         if frame_type.get("columns") == 1 and frame_type.get("rows") == 1 and not frame_type.get("isCircle", False):
             crop_top = True
         elif frame_type.get("columns") == 2 and frame_type.get("rows") == 2:
+            crop_top = True
+        # Frame 1x2 ngang cũng crop từ top như frame 2x2
+        elif frame_type.get("columns") == 1 and frame_type.get("rows") == 2 and not frame_type.get("isCustom", False):
             crop_top = True
     
     left = 0 if crop_left else (img.width - size[0]) // 2
@@ -104,7 +107,7 @@ def paste_image(frame, img, pos, size, is_circle, frame_type=None):
     
     img = img.crop((left, top, left + size[0], top + size[1]))
     if img.size != size:
-        img = img.resize(size, Image.Resampling.BICUBIC)
+        img = img.resize(size, Image.Resampling.LANCZOS)
     
     if is_circle:
         mask = Image.new('L', size, 0)

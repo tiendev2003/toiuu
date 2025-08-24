@@ -9,10 +9,23 @@ import subprocess
 import os
 import tempfile
 import json
+import platform
 from pathlib import Path
 from config import VIDEO_FPS, FAST_VIDEO_DURATION, OUTPUT_FOLDER, get_frame_margin, get_frame_gap, FRAME_TYPES, get_daily_folder
 from .image_processing import fit_cover_image, calc_positions
 from .ffmpeg_utils import get_ffmpeg_command, get_ffprobe_command, check_ffmpeg_availability, check_ffprobe_availability
+
+def get_subprocess_args():
+    """
+    Trả về các tham số phù hợp cho subprocess.run tùy theo hệ điều hành
+    
+    Returns:
+        dict: Dictionary chứa các tham số cho subprocess.run
+    """
+    args = {}
+    if platform.system() == "Windows":
+        args["creationflags"] = subprocess.CREATE_NO_WINDOW
+    return args
 
 def get_ffmpeg_path():
     """Deprecated: Use ffmpeg_utils.get_ffmpeg_command() instead"""
@@ -90,7 +103,8 @@ def optimize_video_for_opencv(input_file):
         ]
         
         print(f"[VIDEO OPTIMIZE] Optimizing {input_file} for OpenCV...")
-        subprocess.run(cmd, check=True, capture_output=True, creationflags=subprocess.CREATE_NO_WINDOW)
+        subprocess_args = get_subprocess_args()
+        subprocess.run(cmd, check=True, capture_output=True, **subprocess_args)
 
         if os.path.exists(optimized_file) and os.path.getsize(optimized_file) > 0:
             print(f"[VIDEO OPTIMIZE] Successfully optimized: {optimized_file}")
@@ -226,7 +240,8 @@ def get_video_info(video_path):
             ffprobe_cmd, '-v', 'quiet', '-print_format', 'json', 
             '-show_format', '-show_streams', video_path
         ]
-        result = subprocess.run(cmd, capture_output=True, text=True, check=True,creationflags=subprocess.CREATE_NO_WINDOW)
+        subprocess_args = get_subprocess_args()
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True, **subprocess_args)
         data = json.loads(result.stdout)
         
         video_stream = next((s for s in data['streams'] if s['codec_type'] == 'video'), None)

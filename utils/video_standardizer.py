@@ -4,12 +4,25 @@ Module để chuẩn hóa video về định dạng h264+aac sử dụng ffmpeg
 import os
 import subprocess
 import sys
+import platform
 from pathlib import Path
 import time
 from utils.logging import setup_logging
 from utils.ffmpeg_utils import get_ffmpeg_command, check_ffmpeg_availability
 
 logger = setup_logging()
+
+def get_subprocess_args():
+    """
+    Trả về các tham số phù hợp cho subprocess.run tùy theo hệ điều hành
+    
+    Returns:
+        dict: Dictionary chứa các tham số cho subprocess.run
+    """
+    args = {}
+    if platform.system() == "Windows":
+        args["creationflags"] = subprocess.CREATE_NO_WINDOW
+    return args
 
 def standardize_video(input_file, output_file=None, crf=23, preset="fast"):
     """
@@ -58,7 +71,8 @@ def standardize_video(input_file, output_file=None, crf=23, preset="fast"):
         ]
         
         logger.info(f"Chuẩn hóa video h264+aac: {input_file} -> {output_file}")
-        result = subprocess.run(cmd, check=True, capture_output=True, text=True,creationflags=subprocess.CREATE_NO_WINDOW)
+        subprocess_args = get_subprocess_args()
+        result = subprocess.run(cmd, check=True, capture_output=True, text=True, **subprocess_args)
         
         # Kiểm tra file output
         if os.path.exists(output_file) and os.path.getsize(output_file) > 0:
@@ -121,7 +135,8 @@ def verify_video_codec(video_file):
             '-show_streams', video_file
         ]
         
-        result = subprocess.run(cmd, capture_output=True, text=True, check=True,creationflags=subprocess.CREATE_NO_WINDOW)
+        subprocess_args = get_subprocess_args()
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True, **subprocess_args)
         
         import json
         data = json.loads(result.stdout)

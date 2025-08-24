@@ -3,13 +3,13 @@ import os
 import uuid
 import time
 import socket  # Import socket module
-import win32ui
+# import win32ui
 import subprocess
 
 import sys, os
 try:
-    import win32print
-    import win32api
+    # import win32print
+    # import win32api
     WIN32_AVAILABLE = True
 except ImportError:
     WIN32_AVAILABLE = False

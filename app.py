@@ -94,17 +94,7 @@ def get_qr_code(url, size=(200, 200)):
     qr_cache[url] = qr_img
     return qr_img
 
-def prepare_for_dnp_printing(img, orientation="4x6"):
-    current_width, current_height = img.size
-    safe_width = int(current_width * 0.96)
-    safe_height = int(current_height * 0.96)
-    safe_img = Image.new("RGB", (current_width, current_height), (255, 255, 255))
-    x_offset = (current_width - safe_width) // 2
-    y_offset = (current_height - safe_height) // 2
-    resized_img = img.resize((safe_width, safe_height), Image.Resampling.LANCZOS)
-    safe_img.paste(resized_img, (x_offset, y_offset))
-    enhancer = ImageEnhance.Sharpness(safe_img)
-    return enhancer.enhance(1.1)
+
 
 def update_media_session(media_session_code, image_url=None, video_url=None, fast_video_url=None):
     if not media_session_code:
@@ -190,10 +180,10 @@ def process_image_task(frame_type, image_files, positions, photo_width, photo_he
             frame_rgb = frame.convert("RGB")
             doubled_frame.paste(frame_rgb, (0, 0))
             doubled_frame.paste(frame_rgb, (total_width, 0))
-            doubled_frame.save(image_output_file, "JPEG", quality=92, optimize=True, subsampling=0, progressive=False)
+            doubled_frame.save(image_output_file, "JPEG", quality=100, optimize=True, subsampling=0, progressive=False)
         else:
             # Frame thường, lưu trực tiếp
-            frame.convert("RGB").save(image_output_file, "JPEG", quality=92, optimize=True, subsampling=0, progressive=False)
+            frame.convert("RGB").save(image_output_file, "JPEG", quality=100, optimize=True, subsampling=0, progressive=False)
         
         # Upload ảnh lên host để lưu trữ
         if os.path.exists(image_output_file):
@@ -256,12 +246,19 @@ def process_image():
         overlay_img = None
         if background_path:
             background_img = Image.open(background_path).convert("RGB")
-            crop_direction = "top" if frame_type.get("columns") in [1, 2] and frame_type.get("rows") in [1, 2] else "center"
+            crop_direction = "top" if frame_type and (
+                (frame_type.get("columns") == 1 and frame_type.get("rows") == 1 and not frame_type.get("isCircle", False)) or
+                (frame_type.get("columns") == 2 and frame_type.get("rows") == 2) or
+                (frame_type.get("columns") == 1 and frame_type.get("rows") == 2 and not frame_type.get("isCustom", False))) else "center"
             background_img = fit_cover_image(background_img, (total_width, total_height), crop_direction)
         if overlay_path:
             overlay_img = Image.open(overlay_path).convert("RGBA")
-            crop_direction = "top" if frame_type.get("columns") in [1, 2] and frame_type.get("rows") in [1, 2] else "center"
+            crop_direction = "top" if frame_type and (
+                (frame_type.get("columns") == 1 and frame_type.get("rows") == 1 and not frame_type.get("isCircle", False)) or
+                (frame_type.get("columns") == 2 and frame_type.get("rows") == 2) or
+                (frame_type.get("columns") == 1 and frame_type.get("rows") == 2 and not frame_type.get("isCustom", False))) else "center"
             overlay_img = fit_cover_image(overlay_img, (total_width, total_height), crop_direction)
+        
         
         response_data = {}
         unique_id = str(uuid.uuid4())
@@ -277,7 +274,7 @@ def process_image():
             else:
                 cleanup_files(saved_files)
                 return jsonify({"error": "Image processing failed"}), 500
-        
+            
         cleanup_files(saved_files)
         cleanup_files(image_files)
         return jsonify(response_data), 200
@@ -513,7 +510,7 @@ def apply_filter():
         # Sử dụng daily folder để lưu file
         daily_output_folder = get_daily_folder(OUTPUT_FOLDER)
         output_path = os.path.join(daily_output_folder, output_filename)
-        filtered_img.save(output_path, "JPEG", quality=95)
+        filtered_img.save(output_path, "JPEG", quality=100)
         
         return jsonify({"success": True, "filtered_image_url": f"/outputs/{output_filename}"}), 200
     except Exception as e:
@@ -629,4 +626,4 @@ def download_image():
 if __name__ == '__main__':
     logger.info("Starting Flask application")
     # Tắt debug mode để tránh multiple processes và threading issues
-    app.run(debug=False, host='0.0.0.0', port=4000, threaded=True, use_reloader=False)
+    app.run(debug=True, host='0.0.0.0', port=8000, threaded=True, use_reloader=False)

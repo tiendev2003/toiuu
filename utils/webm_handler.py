@@ -6,10 +6,23 @@ import os
 import subprocess
 import shutil
 import sys
+import platform
 from utils.logging import setup_logging
 from utils.ffmpeg_utils import get_ffmpeg_command, get_ffprobe_command, check_ffmpeg_availability, check_ffprobe_availability
 
 logger = setup_logging()
+
+def get_subprocess_args():
+    """
+    Trả về các tham số phù hợp cho subprocess.run tùy theo hệ điều hành
+    
+    Returns:
+        dict: Dictionary chứa các tham số cho subprocess.run
+    """
+    args = {}
+    if platform.system() == "Windows":
+        args["creationflags"] = subprocess.CREATE_NO_WINDOW
+    return args
 
 def get_ffmpeg_path():
     """Deprecated: Use ffmpeg_utils.get_ffmpeg_command() instead"""
@@ -53,7 +66,8 @@ def detect_webm_codec(webm_file):
             ffprobe_cmd, '-v', 'quiet', '-print_format', 'json',
             '-show_streams', webm_file
         ]
-        result = subprocess.run(cmd, capture_output=True, text=True, check=True,creationflags=subprocess.CREATE_NO_WINDOW)
+        subprocess_args = get_subprocess_args()
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True, **subprocess_args)
         
         import json
         data = json.loads(result.stdout)
@@ -111,7 +125,8 @@ def optimize_webm_for_opencv(input_file, output_file=None):
         cmd.append(output_file)
         
         logger.info(f"Optimizing WebM for OpenCV: {input_file} -> {output_file}")
-        result = subprocess.run(cmd, check=True, capture_output=True, text=True,creationflags=subprocess.CREATE_NO_WINDOW)
+        subprocess_args = get_subprocess_args()
+        result = subprocess.run(cmd, check=True, capture_output=True, text=True, **subprocess_args)
         
         if os.path.exists(output_file) and os.path.getsize(output_file) > 0:
             logger.info(f"WebM optimization successful: {output_file}")
