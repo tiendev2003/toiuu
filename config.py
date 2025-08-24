@@ -75,9 +75,9 @@ FAST_VIDEO_DURATION = 2
 # Threading settings
 MAX_PROCESSING_WORKERS = 6  # Tăng số worker để xử lý song song
 MAX_UPLOAD_WORKERS = 3      # Tăng upload workers
-PROCESSING_TIMEOUT = 300    # 5 phút cho video processing
-UPLOAD_TIMEOUT = 120        # 2 phút cho upload
- 
+PROCESSING_TIMEOUT = 300    # Giảm timeout để fail fast
+UPLOAD_TIMEOUT = 120
+
 # URLs
 URL_MAIN = "http://localhost:4000"
 URL_FRONTEND = "https://s.mayphotobooth.com"
