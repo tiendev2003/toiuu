@@ -2,21 +2,23 @@
 import datetime
 import sys
 import uuid
-from flask import Flask, jsonify, request, send_from_directory, render_template
-from flask_cors import CORS
-from concurrent.futures import ThreadPoolExecutor, TimeoutError
-import time
 import os
 import requests
 import qrcode
 from PIL import Image, ImageDraw, ImageEnhance
+from flask import Flask, jsonify, request, send_from_directory, render_template
+from flask_cors import CORS
+from concurrent.futures import ThreadPoolExecutor, TimeoutError
+import time
 from utils.logging import setup_logging
 from utils.file_handling import save_uploaded_files, cleanup_files, allowed_file, save_file
 from utils.image_processing import get_frame_type, get_frame_size, calc_positions, paste_image, fit_cover_image
-from utils.video_processing import process_video_task, process_fast_video_task
+from utils.video_processing import process_video_task, process_fast_video_task, convert_webm_to_mp4
 from utils.filters import apply_filter_to_image
 from utils.performance import performance_monitor, log_system_stats
-from utils.upload import upload_image_to_host
+from utils.upload import upload_image_to_host, cleanup_local_video_file
+from utils.print_utils import print_image, get_local_ip, _download_and_save_image
+from utils.video_standardizer import standardize_video, standardize_videos_in_batch
 from config import (
     PRINT_SERVER_IP, UPLOAD_FOLDER, OUTPUT_FOLDER, FRAME_TYPES, FRAME_MARGINS, FRAME_GAPS, 
     GAP_DEFAULT, GAP_PROCESSING, VIDEO_FPS, FAST_VIDEO_DURATION, 
@@ -25,7 +27,7 @@ from config import (
     get_frame_gap, get_frame_margin, get_print_margin, MAX_INPUT_IMAGE_SIZE,
     get_daily_folder, 
 )
-from utils.print_utils import print_image, get_local_ip, _download_and_save_image
+
 def get_base_path():
     # Khi đóng gói bằng PyInstaller, dùng _MEIPASS làm base path
     if getattr(sys, 'frozen', False):
@@ -62,7 +64,6 @@ upload_cache = {}
 
 def cleanup_old_cache():
     """Cleanup cache entries older than 1 hour"""
-    import time
     current_time = time.time()
     keys_to_remove = []
     
@@ -93,8 +94,6 @@ def get_qr_code(url, size=(200, 200)):
     qr_img = qr.make_image(fill_color="black", back_color="white").resize(size, Image.Resampling.BICUBIC)
     qr_cache[url] = qr_img
     return qr_img
-
-
 
 def update_media_session(media_session_code, image_url=None, video_url=None, fast_video_url=None):
     if not media_session_code:
@@ -259,7 +258,6 @@ def process_image():
                 (frame_type.get("columns") == 1 and frame_type.get("rows") == 2 and not frame_type.get("isCustom", False))) else "center"
             overlay_img = fit_cover_image(overlay_img, (total_width, total_height), crop_direction)
         
-        
         response_data = {}
         unique_id = str(uuid.uuid4())
         with ThreadPoolExecutor(max_workers=MAX_PROCESSING_WORKERS) as executor:
@@ -270,7 +268,7 @@ def process_image():
             image_output_file = future.result(timeout=PROCESSING_TIMEOUT)
             print(f"Image output file: {image_output_file}")
             if image_output_file:
-                response_data['image'] =  image_output_file
+                response_data['image'] = image_output_file
             else:
                 cleanup_files(saved_files)
                 return jsonify({"error": "Image processing failed"}), 500
@@ -303,11 +301,9 @@ def convert_video():
                 saved_files.append(temp_path)
                 
                 # Convert nếu là WebM
-                from utils.video_processing import convert_webm_to_mp4
                 converted_path = convert_webm_to_mp4(temp_path)
                 
                 # Chuẩn hóa video về h264+aac
-                from utils.video_standardizer import standardize_video
                 converted_path = standardize_video(converted_path, crf=23, preset="fast")
                 
                 if converted_path != temp_path:
@@ -362,7 +358,6 @@ def process_video():
         
         logger.info(f"[VIDEO PROCESSING] Processing {len(video_files)} video files with frame type: {frame_type_choice}")
         # Convert WebM files to MP4 for better compatibility
-        from utils.video_processing import convert_webm_to_mp4
         converted_files = []
         for video_file in video_files:
             converted_file = convert_webm_to_mp4(video_file)
@@ -374,7 +369,6 @@ def process_video():
         video_files = converted_files
         
         # Chuẩn hóa tất cả video về h264+aac
-        from utils.video_standardizer import standardize_videos_in_batch
         video_files = standardize_videos_in_batch(video_files, preset="fast", crf=23)
         
         margin = get_frame_margin(frame_type_choice)
@@ -517,8 +511,6 @@ def apply_filter():
         logger.error(f"[FILTER] Error: {str(e)}")
         return jsonify({"error": f"Filter application failed: {str(e)}"}), 500
 
- 
-
 @app.route('/api/cleanup-local-video', methods=['POST'])
 def cleanup_local_video():
     """Delete local video file"""
@@ -543,7 +535,6 @@ def cleanup_local_video():
             else:
                 return jsonify({"error": "File not found"}), 404
         
-        from utils.upload import cleanup_local_video_file
         success = cleanup_local_video_file(file_path)
         
         if success:
@@ -621,7 +612,6 @@ def download_image():
     except requests.exceptions.RequestException as e:
         logger.error(f"Error forwarding print request: {str(e)}")
         return jsonify({"error": str(e)}), 500
-
 
 if __name__ == '__main__':
     logger.info("Starting Flask application")
